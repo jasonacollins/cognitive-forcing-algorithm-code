@@ -56,10 +56,10 @@ DEFAULT_CONFIG = SimulationConfig(
 # 
 # This section defines the core functions for the investment task simulation and analytical solution:
 # 
-# - **`simulate_outcomes`:** Simulates the outcomes (high or low) for a given share type (good or bad) over a specified number of trials. It uses the `q` probability to determine the likelihood of each outcome.
-# - **`calculate_expected_return`:** Calculates the expected return for the risky asset (share) based on the posterior probability of it being good. This is used to make informed investment decisions.
-# - **`get_correct_decision`:** Determines the optimal investment decision (share or bond) given the true share type. This represents perfect knowledge and serves as a benchmark for evaluating the AI models.
-# - **`calculate_posterior`:** Calculates the posterior probability based on the AI type and available information:
+# - `simulate_outcomes`: Simulates the outcomes (high or low) for a given share type (good or bad) over a specified number of trials. It uses the `q` probability to determine the likelihood of each outcome.
+# - `calculate_expected_return`: Calculates the expected return for the risky asset (share) based on the posterior probability of it being good. This is used to make informed investment decisions.
+# - `get_correct_decision`: Determines the optimal investment decision (share or bond) given the true share type. This represents perfect knowledge and serves as a benchmark for evaluating the AI models.
+# - `calculate_posterior`: Calculates the posterior probability based on the AI type and available information:
 #   - For 'perfect': Uses Bayes' rule with all available data, representing the ideal scenario with perfect knowledge and reasoning.
 #   - For 'shortsighted': Calculates the posterior based only on the most recent outcome, representing an AI with limited memory or focus.
 #   - For 'earlycommitment': Calculates the posterior based solely on the first outcome, representing an AI that makes an early judgment and sticks to it.
@@ -297,14 +297,9 @@ def calculate_accuracy_metrics(ai_rec: str, true_posterior: float, true_share_ty
     Returns:
         Dictionary containing all three accuracy metrics
     """
-    # 1. Ex-ante accuracy (statistical optimality)
-    if ai_rec == ev_optimal:
-        ex_ante = 1.0
-    elif ai_rec == 'indifferent' or ev_optimal == 'indifferent':
-        ex_ante = 0.5  # Partial credit for indifference
-    else:
-        ex_ante = 0.0
-        
+    # 1. Ex-ante accuracy (statistical optimality)  
+    ex_ante = measure_ex_ante_correctness(ai_rec, true_posterior, DEFAULT_CONFIG)
+
     # 2. Ex-post type accuracy (share-type correctness)
     ex_post_type = measure_ex_post_share_type(ai_rec, true_share_type)
     
@@ -323,8 +318,8 @@ def calculate_accuracy_metrics(ai_rec: str, true_posterior: float, true_share_ty
 # 
 # This section defines functions for running the simulations and aggregating the results:
 # 
-# - **`run_simulation`:** Runs a single simulation of the investment task for a given prior probability (`p`). It simulates outcomes, calculates the correct decision, tracks the AI recommendations, and calculates accuracy metrics.
-# - **`run_all_simulations`:** Runs simulations for all prior probabilities (`p`) and aggregates the results across multiple simulations.
+# - `run_simulation`: Runs a single simulation of the investment task for a given prior probability (`p`). It simulates outcomes, calculates the correct decision, tracks the AI recommendations, and calculates accuracy metrics.
+# - `run_all_simulations`: Runs simulations for all prior probabilities (`p`) and aggregates the results across multiple simulations.
 
 # %%
 # Simulation Runner Functions
@@ -432,7 +427,7 @@ def run_all_simulations(config: SimulationConfig, num_simulations_to_run: Option
         
     results = {}
     all_detailed_data = []
-
+    
     for p in config.p:
         # Initialize accumulators for this prior
         sums = {ai_type: {metric: 0.0 for metric in ['ex_ante', 'ex_post_type', 'ex_post_payoff']} 
@@ -466,8 +461,8 @@ def run_all_simulations(config: SimulationConfig, num_simulations_to_run: Option
 # 
 # This section provides the functions for the analytical solution. It comprises the following functions:
 # 
-# - **`seq_probability`**: Calculates the probability of a specific sequence of outcomes given the share type (good or bad) and the prior probability.
-# - **`run_all_measures`**: Runs the analytical solution for all measures (ex-ante, ex-post type, and ex-post payoff) across all prior probabilities and outcomes.
+# - `seq_probability`: Calculates the probability of a specific sequence of outcomes given the share type (good or bad) and the prior probability.
+# - `run_all_measures`: Runs the analytical solution for all measures (ex-ante, ex-post type, and ex-post payoff) across all prior probabilities and outcomes.
 
 # %%
 
@@ -1242,13 +1237,14 @@ def display_results_table(results: Dict[float, Dict[str, Dict[str, float]]], con
     Parameters:
         results: Dictionary with accuracy results in consistent format
         config: Simulation configuration parameters
-    """
+    """    
     print(f"Number of trials num_trials={config.num_trials}\n")
+
     for p in config.p:
         print(f"===== p = {p} =====")
         for ai_type in config.ai_types:
             # Access metrics directly from results
-            ex_ante = results[p][ai_type]['ex_ante']
+            ex_ante = results[p][ai_type]['ex_ante'] 
             ex_post_type = results[p][ai_type]['ex_post_type']
             ex_post_payoff = results[p][ai_type]['ex_post_payoff']
             
@@ -1453,7 +1449,7 @@ def main(config: SimulationConfig = DEFAULT_CONFIG,
 # 
 # This section initiates the analysis by calling the `run_analysis` function.
 # 
-# - It sets the `num_simulations_to_run` parameter to 1000, which controls the number of simulations to perform for each prior probability.
+# - It sets the `num_simulations_to_run` parameter, which controls the number of simulations to perform for each prior probability.
 # - The `run_analysis` function encapsulates the entire simulation process, including generating outcomes, calculating AI recommendations, and aggregating results.
 # - The results of the analysis are stored in the `analysis_results` dictionary, which will be used for further processing and visualization.
 
@@ -1462,6 +1458,7 @@ def main(config: SimulationConfig = DEFAULT_CONFIG,
 if __name__ == "__main__":
     # Run with default configuration
     config = DEFAULT_CONFIG
+    config, results = main(config, run_analytical=True)
     
     # Alternatively, you can override configurations:
     # custom_config = SimulationConfig(
@@ -1480,81 +1477,5 @@ if __name__ == "__main__":
     # Or just override the number of simulations:
     # results = main(num_simulations_override=500)
 
-
-# %% [markdown]
-# ### Correctness measures
-# 
-# The analytical solution evaluates AI models using the three correctness measures
-# 
-# Each measure captures a different aspect of decision quality in uncertain environments.
-
-# %%
-
-    # Display simulation results
-    print("\n========== SIMULATION RESULTS ==========")
-    print(f"Based on Monte Carlo simulation with {config.num_simulations} iterations")
-    print("\nSimulation Results Table:")
-    display_results_table(results['simulation'], config)
-
-# %% [markdown]
-# ### Show Performance by Prior Probability
-# 
-# This section examines the AI models' accuracy across different prior probabilities.
-# 
-# - It calls the `plot_performance_by_prior` function, providing the analysis results as input.
-# - This function creates bar charts that show how the accuracy of the AI models varies depending on the prior probability of a good share.
-# - These visualizations offer insights into how the AI models' performance is influenced by the prior probability.
-
-# %%
-
-    # Show simulation performance visualizations
-    print("\nSIMULATION PERFORMANCE BY PRIOR PROBABILITY")
-    prior_comparison = plot_performance_by_prior(results['simulation'], config)
-    plt.show()
-
-
-# %% [markdown]
-# ### Show Performance Across Trials
-# 
-# This section delves into the AI models' performance by examining their accuracy over multiple trials.
-# 
-# - It calls the `plot_ev_accuracy_by_trial` function, providing the analysis results.
-# - This function generates line charts that illustrate the EV-based accuracy of the AI models over the course of multiple trials, showcasing how they adapt over time.
-# - These visualizations offer insights into how the AI models' decision-making evolves during trials.
-
-# %%
-
-    # Show performance across trials
-    trial_charts = display_trial_accuracy_charts(results['trial_df'], config)
-
-
-# %% [markdown]
-# ## Investment Algorithm Accuracy Analytical Solution
-# 
-# This section provides an analytical solution to the investment algorithm accuracy problem, focusing on the expected value of the AI models' recommendations.
-
-# %%
-
-    # Display analytical results
-    print("\nCalculating analytical solution...")
-    results['analytical'] = run_all_measures(config)
-
-    print("\n========== ANALYTICAL RESULTS ==========")
-    print("Exact mathematical solution for all possible sequences")
-    print("\nAnalytical Results Table:")
-    display_results_table(results['analytical'], config)
-
-
-# %% [markdown]
-# ### Chart analytical solution
-# 
-# This section presents the analytical solution to the investment algorithm accuracy problem.
-
-# %%
-
-    # Display analytical performance by prior probability
-    print("\nANALYTICAL PERFORMANCE BY PRIOR PROBABILITY")
-    analytical_prior = plot_analytical_performance_by_prior(results['analytical'], config)
-    plt.show()
 
 
