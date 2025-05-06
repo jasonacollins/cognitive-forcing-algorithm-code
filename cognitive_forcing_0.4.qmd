@@ -1,5 +1,6 @@
 ---
 jupyter: python3
+code-fold: true
 ---
 
 ## Investment Algorithm Accuracy Simulation
@@ -9,7 +10,7 @@ This notebook simulates the accuracy of different investment algorithms in an un
 ### Setup and Parameters
 This section sets up the necessary libraries and parameters for the simulation.
 
-- It imports libraries like NumPy, Pandas, Matplotlib, Seaborn, and tqdm.
+- It imports libraries like NumPy, Pandas, Matplotlib and Seaborn.
 - It sets a random seed for reproducibility.
 - It defines key parameters such as the prior probabilities of a good share (`p`), the probability of a high payoff for a good share (`q`), the payoff values for high and low outcomes (`high_payoff`, `low_payoff`), the bond payoff (`bond_payoff`), the number of trials per block (`num_trials`), and the number of simulations to run (`num_simulations`).
 
@@ -386,6 +387,8 @@ def run_simulation(p: float, sim_id: int, config: SimulationConfig) -> Tuple[Dic
         'ex_post_type': 0, 
         'ex_post_payoff': 0,
         'forced_correct': 0,
+        'forced_type_correct': 0,  # New metric for ex-post type in forced choice 
+        'forced_payoff_correct': 0,  # New metric for ex-post payoff in forced choice
         'forced_total': 0
     } for ai_type in config.ai_types}
     
@@ -435,6 +438,8 @@ def run_simulation(p: float, sim_id: int, config: SimulationConfig) -> Tuple[Dic
             # Only include in forced choice metric if it's not a tie
             if should_include:
                 ai_metrics[ai_type]['forced_correct'] += forced_correct
+                ai_metrics[ai_type]['forced_type_correct'] += ex_post_type_correct  # Add ex-post type for forced choice
+                ai_metrics[ai_type]['forced_payoff_correct'] += ex_post_payoff_correct  # Add ex-post payoff for forced choice
                 ai_metrics[ai_type]['forced_total'] += 1
 
             # Record detailed data for this trial
@@ -489,6 +494,8 @@ def run_all_simulations(config: SimulationConfig, num_simulations_to_run: Option
             'ex_post_type': 0.0, 
             'ex_post_payoff': 0.0,
             'forced_correct': 0.0,
+            'forced_type_correct': 0.0,  # New metric
+            'forced_payoff_correct': 0.0,  # New metric
             'forced_total': 0.0
         } for ai_type in config.ai_types}
 
@@ -518,17 +525,21 @@ def run_all_simulations(config: SimulationConfig, num_simulations_to_run: Option
         for ai_type in config.ai_types:
             total_forced = sums[ai_type]['forced_total']
             if total_forced > 0:
-                accuracy = sums[ai_type]['forced_correct'] / total_forced
+                ex_ante_accuracy = sums[ai_type]['forced_correct'] / total_forced
+                ex_post_type_accuracy = sums[ai_type]['forced_type_correct'] / total_forced  # Calculate ex-post type
+                ex_post_payoff_accuracy = sums[ai_type]['forced_payoff_correct'] / total_forced  # Calculate ex-post payoff
                 pct_included = total_forced / (num_simulations_to_run * config.num_trials) * 100
             else:
-                accuracy = float('nan')
+                ex_ante_accuracy = float('nan')
+                ex_post_type_accuracy = float('nan')
+                ex_post_payoff_accuracy = float('nan')
                 pct_included = 0
                 
             # Format exactly like standard_results to work with existing plot function
             forced_results[p][ai_type] = {
-                'ex_ante': accuracy,
-                'ex_post_type': float('nan'),  # Not applicable
-                'ex_post_payoff': float('nan'),  # Not applicable
+                'ex_ante': ex_ante_accuracy,
+                'ex_post_type': ex_post_type_accuracy,
+                'ex_post_payoff': ex_post_payoff_accuracy,
                 'pct_included': pct_included
             }
 
@@ -536,6 +547,7 @@ def run_all_simulations(config: SimulationConfig, num_simulations_to_run: Option
     trial_df = pd.DataFrame(all_detailed_data)
 
     return standard_results, forced_results, trial_df
+
 ```
 
 ## Analytical solution
@@ -585,7 +597,7 @@ def seq_probability(sequence: np.ndarray, share_type: str, config: SimulationCon
 # Main enumeration function
 ##########################
 
-def run_all_measures(config: SimulationConfig) -> Dict[float, Dict[str, Dict[str, float]]]:
+def run_all_measures(config: SimulationConfig) -> Tuple[Dict[float, Dict[str, Dict[str, float]]], Dict[float, Dict[str, Dict[str, float]]]]:
     """
     Enumerates all 2^num_trials sequences, simulates each AI's picks,
     and calculates three measures of accuracy using NumPy for vectorization.
@@ -594,14 +606,17 @@ def run_all_measures(config: SimulationConfig) -> Dict[float, Dict[str, Dict[str
         config: Simulation configuration parameters
 
     Returns:
-        Nested dictionary with results for each prior and AI type
+        Tuple with:
+        - Standard results dictionary
+        - Forced choice results dictionary
     """
     # Pre-generate all possible sequences as binary arrays (0=low, 1=high)
     # This gives us a 2D array where each row is one possible sequence
     sequences = np.array(list(itertools.product([0, 1], repeat=config.num_trials)))
 
     # Results dictionary
-    results = {}
+    standard_results = {}
+    forced_results = {}
 
     # For each prior probability
     for p in config.p:
@@ -628,12 +643,24 @@ def run_all_measures(config: SimulationConfig) -> Dict[float, Dict[str, Dict[str
             probs_good[len(seq_strings)-1] = prob_good
             probs_bad[len(seq_strings)-1] = prob_bad
 
-        # Initialize measures for each AI type
+        # Initialize measures for each AI type (standard measures)
         measure_sums = {
             ai_type: {
                 'ex_ante': 0.0,
                 'ex_post_type': 0.0,
                 'ex_post_payoff': 0.0
+            }
+            for ai_type in config.ai_types
+        }
+        
+        # Initialize forced choice measures
+        forced_sums = {
+            ai_type: {
+                'ex_ante': 0.0,
+                'ex_post_type': 0.0,
+                'ex_post_payoff': 0.0,
+                'total_cases': 0.0,
+                'total_weight': 0.0
             }
             for ai_type in config.ai_types
         }
@@ -656,6 +683,12 @@ def run_all_measures(config: SimulationConfig) -> Dict[float, Dict[str, Dict[str
                 correct_ex_post_good = 0.0
                 correct_ex_post_bad = 0.0
                 correct_ex_post_payoff = 0.0
+                
+                # Forced choice measures
+                forced_ex_ante = 0.0
+                forced_ex_post_type = 0.0
+                forced_ex_post_payoff = 0.0
+                forced_cases = 0.0
 
                 # Simulate the AI observing outcomes one by one
                 observed = []
@@ -666,16 +699,32 @@ def run_all_measures(config: SimulationConfig) -> Dict[float, Dict[str, Dict[str
 
                     # Calculate true Bayesian posterior for EV measure
                     true_posterior_good = calculate_posterior('perfect', p, observed, current_trial, config)
+                    
+                    # Calculate expected return for checking EV ties
+                    expected_return = calculate_expected_return(true_posterior_good, config)
+                    is_ev_tie = abs(expected_return - config.bond_payoff) < 1e-15
 
                     # 1) Ex-Ante correctness
-                    correct_ex_ante += measure_ex_ante_correctness(ai_rec, true_posterior_good, config)
+                    ex_ante_correct = measure_ex_ante_correctness(ai_rec, true_posterior_good, config)
+                    correct_ex_ante += ex_ante_correct
 
                     # 2) Ex-Post (share-type) correctness
-                    correct_ex_post_good += measure_ex_post_share_type(ai_rec, 'good')
-                    correct_ex_post_bad += measure_ex_post_share_type(ai_rec, 'bad')
+                    ex_post_good_correct = measure_ex_post_share_type(ai_rec, 'good')
+                    ex_post_bad_correct = measure_ex_post_share_type(ai_rec, 'bad')
+                    correct_ex_post_good += ex_post_good_correct
+                    correct_ex_post_bad += ex_post_bad_correct
 
                     # 3) Ex-Post (payoff-based) correctness
-                    correct_ex_post_payoff += measure_ex_post_payoff(ai_rec, outcome)
+                    ex_post_payoff_correct = measure_ex_post_payoff(ai_rec, outcome)
+                    correct_ex_post_payoff += ex_post_payoff_correct
+                    
+                    # Forced choice metrics - only count when not a tie
+                    if not is_ev_tie:
+                        forced_cases += 1
+                        forced_ex_ante += ex_ante_correct
+                        forced_ex_post_type += (p * prob_good * ex_post_good_correct + 
+                                               (1.0 - p) * prob_bad * ex_post_bad_correct) / seq_weight
+                        forced_ex_post_payoff += ex_post_payoff_correct
 
                     # Update observed outcomes for next trial
                     observed.append(outcome)
@@ -689,20 +738,50 @@ def run_all_measures(config: SimulationConfig) -> Dict[float, Dict[str, Dict[str
                 )
 
                 measure_sums[ai_type]['ex_post_payoff'] += correct_ex_post_payoff * seq_weight
+                
+                # Update forced choice measures if we had any non-tie cases
+                if forced_cases > 0:
+                    # Weight by sequence probability
+                    forced_sums[ai_type]['ex_ante'] += forced_ex_ante * seq_weight
+                    forced_sums[ai_type]['ex_post_type'] += forced_ex_post_type * seq_weight
+                    forced_sums[ai_type]['ex_post_payoff'] += forced_ex_post_payoff * seq_weight
+                    forced_sums[ai_type]['total_cases'] += forced_cases * seq_weight
+                    forced_sums[ai_type]['total_weight'] += config.num_trials * seq_weight
 
         # Process results for this prior probability
-        final_for_p = {}
+        standard_for_p = {}
+        forced_for_p = {}
+        
         for ai_type in config.ai_types:
             # Convert sums to fractions by dividing by number of trials
-            final_for_p[ai_type] = {
+            standard_for_p[ai_type] = {
                 'ex_ante': measure_sums[ai_type]['ex_ante'] / float(config.num_trials),
                 'ex_post_type': measure_sums[ai_type]['ex_post_type'] / float(config.num_trials),
                 'ex_post_payoff': measure_sums[ai_type]['ex_post_payoff'] / float(config.num_trials)
             }
+            
+            # Calculate forced choice metrics
+            total_forced_cases = forced_sums[ai_type]['total_cases']
+            if total_forced_cases > 0:
+                forced_for_p[ai_type] = {
+                    'ex_ante': forced_sums[ai_type]['ex_ante'] / total_forced_cases,
+                    'ex_post_type': forced_sums[ai_type]['ex_post_type'] / total_forced_cases,
+                    'ex_post_payoff': forced_sums[ai_type]['ex_post_payoff'] / total_forced_cases,
+                    'pct_included': (total_forced_cases / forced_sums[ai_type]['total_weight']) * 100
+                }
+            else:
+                forced_for_p[ai_type] = {
+                    'ex_ante': float('nan'),
+                    'ex_post_type': float('nan'),
+                    'ex_post_payoff': float('nan'),
+                    'pct_included': 0
+                }
 
-        results[p] = final_for_p
+        standard_results[p] = standard_for_p
+        forced_results[p] = forced_for_p
 
-    return results
+    return standard_results, forced_results
+
 ```
 
 ### Visualisation and reporting functions
@@ -720,6 +799,7 @@ This section defines functions for creating summary visualisations of the result
     - `ev_results`: A dictionary containing the expected value (EV)-based accuracy results from the simulations.
     - `table_type`: A string indicating the type of table to generate ("summary" or "prior").
 - `plot_trial_by_trial_performance`: Creates a plot visualizing the traditional accuracy of AI models across trials for different prior probabilities.
+- `display_forced_choice_results`: Displays the forced choice results in a formatted table.
 
 ```{python}
 # Visualisation Functions
@@ -1346,15 +1426,15 @@ def display_forced_choice_results(forced_results: Dict[float, Dict[str, Dict[str
     for p in config.p:
         print(f"Prior p = {p}")
         for ai_type in config.ai_types:
-            accuracy = forced_results[p][ai_type]['ex_ante']  # Match key structure
+            ex_ante = forced_results[p][ai_type]['ex_ante']
+            ex_post_type = forced_results[p][ai_type]['ex_post_type']
+            ex_post_payoff = forced_results[p][ai_type]['ex_post_payoff']
             pct_included = forced_results[p][ai_type]['pct_included']
             
-            if np.isnan(accuracy):
-                accuracy_str = "N/A (no non-tie cases)"
+            if np.isnan(ex_ante):
+                print(f"  {ai_type:15s} => N/A (no non-tie cases)")
             else:
-                accuracy_str = f"{accuracy:.4f} (using {pct_included:.1f}% of trials)"
-                
-            print(f"  {ai_type:15s} => accuracy = {accuracy_str}")
+                print(f"  {ai_type:15s} => ex-ante={ex_ante:.4f}, ex-post-type={ex_post_type:.4f}, ex-post-payoff={ex_post_payoff:.4f} (using {pct_included:.1f}% of trials)")
         print()
         
 ```
@@ -1418,17 +1498,20 @@ def run_analysis(config: SimulationConfig,
 
     # Run analytical solution with unified format if requested
     analytical_results = None
+    analytical_forced_results = None
     if run_analytical:
         print("\nCalculating analytical solution...")
-        analytical_results = run_all_measures(config)
+        analytical_results, analytical_forced_results = run_all_measures(config)
 
     # Return all results
     return {
         'standard': standard_results,
         'forced': forced_results,
         'analytical': analytical_results,
+        'analytical_forced': analytical_forced_results,
         'trial_df': trial_df
     }
+
 ```
 
 ### Diagnostic and Testing Functions
@@ -1500,6 +1583,7 @@ def main(config: SimulationConfig = DEFAULT_CONFIG,
         config: Simulation configuration parameters
         num_simulations_override: Optional override for number of simulations
         display_results: Whether to display charts and tables
+        run_analytical: Whether to run analytical solution
 
     Returns:
         Tuple of (config, results)
@@ -1560,8 +1644,21 @@ def main(config: SimulationConfig = DEFAULT_CONFIG,
             print("\nANALYTICAL PERFORMANCE BY PRIOR PROBABILITY")
             analytical_prior = plot_analytical_performance_by_prior(results['analytical'], config)
             plt.show()
+            
+            # ===== ANALYTICAL FORCED CHOICE SECTION =====
+            if results['analytical_forced']:
+                print("\n========== ANALYTICAL FORCED CHOICE RESULTS ==========")
+                print("Exact mathematical solution excluding cases where EV(share) = bond payoff exactly")
+                print("\nAnalytical Forced Choice Results Table:")
+                display_forced_choice_results(results['analytical_forced'], config)
+                
+                # Display analytical forced choice performance by prior probability
+                print("\nANALYTICAL FORCED CHOICE PERFORMANCE BY PRIOR PROBABILITY")
+                analytical_forced_prior = plot_performance_by_prior(results['analytical_forced'], config)
+                plt.show()
 
     return config, results
+
 ```
 
 ### Run the Analysis

@@ -109,7 +109,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>It sets a random seed for reproducibility.</li>
 <li>It defines key parameters such as the prior probabilities of a good share (<code>p</code>), the probability of a high payoff for a good share (<code>q</code>), the payoff values for high and low outcomes (<code>high_payoff</code>, <code>low_payoff</code>), the bond payoff (<code>bond_payoff</code>), the number of trials per block (<code>num_trials</code>), and the number of simulations to run (<code>num_simulations</code>).</li>
 </ul>
-<div id="372f7f62" class="cell" data-execution_count="1">
+<div id="f96d91b1" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup and Parameters</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -147,6 +149,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    ai_types<span class="op">=</span>[<span class="st">'perfect'</span>, <span class="st">'shortsighted'</span>, <span class="st">'earlycommitment'</span>, <span class="st">'conservative'</span>, <span class="st">'naiveprior'</span>],</span>
 <span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    beta<span class="op">=</span><span class="fl">0.5</span></span>
 <span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <p>This section defines the core functions for the investment task simulation and analytical solution:</p>
 <ul>
@@ -169,7 +172,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>It compares the expected return to the bond payoff and makes a recommendation accordingly.</li>
 </ul></li>
 </ul>
-<div id="a605c0ee" class="cell" data-execution_count="2">
+<div id="68392412" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Investment Task Simulation Functions</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> simulate_outcomes(share_type: <span class="bu">str</span>, config: SimulationConfig) <span class="op">-&gt;</span> List[<span class="bu">str</span>]:</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
@@ -229,8 +234,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">'bond'</span></span>
 <span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
 <span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">'indifferent'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
-<div id="5316e9c7" class="cell" data-execution_count="3">
+<div id="1adc85ea" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bayesian Posterior Calculation Function</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calculate_posterior(ai_type: <span class="bu">str</span>, p: <span class="bu">float</span>, outcomes: List[<span class="bu">str</span>], current_trial: <span class="bu">int</span>, config: SimulationConfig) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
@@ -275,8 +283,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>        denominator <span class="op">=</span> numerator <span class="op">+</span> (<span class="dv">1</span><span class="op">-</span>p) <span class="op">*</span> ((<span class="dv">1</span><span class="op">-</span>config.q) <span class="op">**</span> nH) <span class="op">*</span> (config.q <span class="op">**</span> nL)</span>
 <span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> numerator <span class="op">/</span> denominator <span class="cf">if</span> denominator <span class="op">!=</span> <span class="dv">0</span> <span class="cf">else</span> p</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
-<div id="ebca1704" class="cell" data-execution_count="4">
+<div id="5d4cddf4" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># AI Decision Function</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_ai_recommendation(ai_type: <span class="bu">str</span>, p: <span class="bu">float</span>, outcomes: List[<span class="bu">str</span>], current_trial: <span class="bu">int</span>, config: SimulationConfig) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
@@ -304,6 +315,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">'bond'</span></span>
 <span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
 <span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">'indifferent'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 </section>
 </section>
@@ -315,7 +327,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><strong>Ex-Post Type correctness</strong>: Evaluates if the AI’s recommendation matches what would have been optimal given perfect knowledge of the share type (good vs bad). This measures alignment with the true underlying asset quality.</p></li>
 <li><p><strong>Ex-Post Payoff correctness</strong>: Evaluates if the AI’s recommendation maximized payoff given the actual outcome (high vs low). This measures whether the decision was rewarded by the specific outcome that occurred.</p></li>
 </ol>
-<div id="5eb214c3" class="cell" data-execution_count="5">
+<div id="303c9c9c" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">##########################</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Three correctness measures</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">##########################</span></span>
@@ -439,6 +453,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a>        accuracy <span class="op">=</span> <span class="fl">1.0</span> <span class="cf">if</span> ai_rec <span class="op">==</span> <span class="st">'bond'</span> <span class="cf">else</span> <span class="fl">0.0</span></span>
 <span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> accuracy, <span class="va">True</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <section id="simulation-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="simulation-analysis">Simulation analysis</h3>
@@ -447,7 +462,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>run_simulation</code>: Runs a single simulation of the investment task for a given prior probability (<code>p</code>). It simulates outcomes, calculates the correct decision, tracks the AI recommendations, and calculates accuracy metrics.</li>
 <li><code>run_all_simulations</code>: Runs simulations for all prior probabilities (<code>p</code>) and aggregates the results across multiple simulations.</li>
 </ul>
-<div id="4afe1aeb" class="cell" data-execution_count="6">
+<div id="f353bc28" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulation Runner Functions</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_simulation(p: <span class="bu">float</span>, sim_id: <span class="bu">int</span>, config: SimulationConfig) <span class="op">-&gt;</span> Tuple[Dict[<span class="bu">str</span>, Dict[<span class="bu">str</span>, <span class="bu">float</span>]], List[Dict]]:</span>
@@ -479,156 +496,167 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>        <span class="st">'ex_post_type'</span>: <span class="dv">0</span>, </span>
 <span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>        <span class="st">'ex_post_payoff'</span>: <span class="dv">0</span>,</span>
 <span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>        <span class="st">'forced_correct'</span>: <span class="dv">0</span>,</span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>        <span class="st">'forced_total'</span>: <span class="dv">0</span></span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types}</span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    detailed_data <span class="op">=</span> []</span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simulate AI recommendations at each trial</span></span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> trial <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, config.num_trials <span class="op">+</span> <span class="dv">1</span>):</span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Get outcomes observed so far (excluding current trial)</span></span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>        observed_outcomes <span class="op">=</span> outcomes[:trial<span class="op">-</span><span class="dv">1</span>]</span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>        current_outcome <span class="op">=</span> outcomes[trial<span class="op">-</span><span class="dv">1</span>]</span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Get true Bayesian posterior for EV measure</span></span>
-<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>        true_posterior <span class="op">=</span> calculate_posterior(<span class="st">'perfect'</span>, p, observed_outcomes, trial<span class="op">-</span><span class="dv">1</span>, config)</span>
-<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Calculate expected return based on true posterior</span></span>
-<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>        expected_return <span class="op">=</span> calculate_expected_return(true_posterior, config)</span>
-<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Determine optimal decision based on expected return</span></span>
-<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> expected_return <span class="op">&gt;</span> config.bond_payoff:</span>
-<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>            ev_optimal_decision <span class="op">=</span> <span class="st">'share'</span></span>
-<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> expected_return <span class="op">&lt;</span> config.bond_payoff:</span>
-<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>            ev_optimal_decision <span class="op">=</span> <span class="st">'bond'</span></span>
-<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
-<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>            ev_optimal_decision <span class="op">=</span> <span class="st">'indifferent'</span></span>
-<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>        <span class="co"># For each AI type, get recommendation and measure correctness</span></span>
-<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types:</span>
-<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>            ai_rec <span class="op">=</span> get_ai_recommendation(ai_type, p, observed_outcomes, trial<span class="op">-</span><span class="dv">1</span>, config)</span>
-<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Ex-Ante correctness (match with statistical optimality)</span></span>
-<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>            ex_ante_correct <span class="op">=</span> measure_ex_ante_correctness(ai_rec, true_posterior, config)</span>
-<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Ex-Post Type correctness (match with true share type)</span></span>
-<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>            ex_post_type_correct <span class="op">=</span> measure_ex_post_share_type(ai_rec, share_type)</span>
-<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Ex-Post Payoff correctness (match with actual outcome)</span></span>
-<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>            ex_post_payoff_correct <span class="op">=</span> measure_ex_post_payoff(ai_rec, current_outcome)</span>
-<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Forced choice Ex-Ante correctness (excluding ties)</span></span>
-<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>            forced_correct, should_include <span class="op">=</span> measure_ex_ante_forced_choice(ai_rec, true_posterior, config)</span>
-<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Add to metrics</span></span>
-<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>            ai_metrics[ai_type][<span class="st">'ex_ante'</span>] <span class="op">+=</span> ex_ante_correct</span>
-<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>            ai_metrics[ai_type][<span class="st">'ex_post_type'</span>] <span class="op">+=</span> ex_post_type_correct</span>
-<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>            ai_metrics[ai_type][<span class="st">'ex_post_payoff'</span>] <span class="op">+=</span> ex_post_payoff_correct</span>
-<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Only include in forced choice metric if it's not a tie</span></span>
-<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> should_include:</span>
-<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>                ai_metrics[ai_type][<span class="st">'forced_correct'</span>] <span class="op">+=</span> forced_correct</span>
-<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>                ai_metrics[ai_type][<span class="st">'forced_total'</span>] <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Record detailed data for this trial</span></span>
-<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>            detailed_data.append({</span>
-<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>                <span class="st">'sim_id'</span>: sim_id,</span>
-<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>                <span class="st">'prior'</span>: p,</span>
-<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>                <span class="st">'trial'</span>: trial,</span>
-<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ai_type'</span>: ai_type,</span>
-<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>                <span class="st">'true_share_type'</span>: share_type,</span>
-<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>                <span class="st">'outcome'</span>: current_outcome,</span>
-<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ai_rec'</span>: ai_rec,</span>
-<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ev_optimal'</span>: ev_optimal_decision,</span>
-<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ev_accuracy'</span>: ex_ante_correct,</span>
-<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>                <span class="st">'rec_accuracy'</span>: ex_post_type_correct,</span>
-<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a>                <span class="st">'outcome_accuracy'</span>: ex_post_payoff_correct,</span>
-<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>                <span class="st">'forced_accuracy'</span>: forced_correct <span class="cf">if</span> should_include <span class="cf">else</span> <span class="va">None</span>,</span>
-<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>                <span class="st">'is_ev_tie'</span>: <span class="kw">not</span> should_include</span>
-<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>            })</span>
-<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Convert trial sums to averages</span></span>
-<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types:</span>
-<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> metric <span class="kw">in</span> [<span class="st">'ex_ante'</span>, <span class="st">'ex_post_type'</span>, <span class="st">'ex_post_payoff'</span>]:</span>
-<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a>            ai_metrics[ai_type][metric] <span class="op">/=</span> config.num_trials</span>
-<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ai_metrics, detailed_data</span>
-<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_all_simulations(config: SimulationConfig, num_simulations_to_run: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>) <span class="op">-&gt;</span> Tuple[Dict[<span class="bu">float</span>, Dict[<span class="bu">str</span>, Dict[<span class="bu">str</span>, <span class="bu">float</span>]]], Dict[<span class="bu">float</span>, Dict[<span class="bu">str</span>, Dict[<span class="bu">str</span>, <span class="bu">float</span>]]], pd.DataFrame]:</span>
-<span id="cb6-108"><a href="#cb6-108" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb6-109"><a href="#cb6-109" aria-hidden="true" tabindex="-1"></a><span class="co">    Run simulations for all prior probabilities</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>        <span class="st">'forced_type_correct'</span>: <span class="dv">0</span>,  <span class="co"># New metric for ex-post type in forced choice </span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>        <span class="st">'forced_payoff_correct'</span>: <span class="dv">0</span>,  <span class="co"># New metric for ex-post payoff in forced choice</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>        <span class="st">'forced_total'</span>: <span class="dv">0</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types}</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    detailed_data <span class="op">=</span> []</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simulate AI recommendations at each trial</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> trial <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, config.num_trials <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Get outcomes observed so far (excluding current trial)</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>        observed_outcomes <span class="op">=</span> outcomes[:trial<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>        current_outcome <span class="op">=</span> outcomes[trial<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Get true Bayesian posterior for EV measure</span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>        true_posterior <span class="op">=</span> calculate_posterior(<span class="st">'perfect'</span>, p, observed_outcomes, trial<span class="op">-</span><span class="dv">1</span>, config)</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Calculate expected return based on true posterior</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>        expected_return <span class="op">=</span> calculate_expected_return(true_posterior, config)</span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Determine optimal decision based on expected return</span></span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> expected_return <span class="op">&gt;</span> config.bond_payoff:</span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>            ev_optimal_decision <span class="op">=</span> <span class="st">'share'</span></span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> expected_return <span class="op">&lt;</span> config.bond_payoff:</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>            ev_optimal_decision <span class="op">=</span> <span class="st">'bond'</span></span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>            ev_optimal_decision <span class="op">=</span> <span class="st">'indifferent'</span></span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>        <span class="co"># For each AI type, get recommendation and measure correctness</span></span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types:</span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>            ai_rec <span class="op">=</span> get_ai_recommendation(ai_type, p, observed_outcomes, trial<span class="op">-</span><span class="dv">1</span>, config)</span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Ex-Ante correctness (match with statistical optimality)</span></span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>            ex_ante_correct <span class="op">=</span> measure_ex_ante_correctness(ai_rec, true_posterior, config)</span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Ex-Post Type correctness (match with true share type)</span></span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>            ex_post_type_correct <span class="op">=</span> measure_ex_post_share_type(ai_rec, share_type)</span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Ex-Post Payoff correctness (match with actual outcome)</span></span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>            ex_post_payoff_correct <span class="op">=</span> measure_ex_post_payoff(ai_rec, current_outcome)</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Forced choice Ex-Ante correctness (excluding ties)</span></span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>            forced_correct, should_include <span class="op">=</span> measure_ex_ante_forced_choice(ai_rec, true_posterior, config)</span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Add to metrics</span></span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>            ai_metrics[ai_type][<span class="st">'ex_ante'</span>] <span class="op">+=</span> ex_ante_correct</span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>            ai_metrics[ai_type][<span class="st">'ex_post_type'</span>] <span class="op">+=</span> ex_post_type_correct</span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>            ai_metrics[ai_type][<span class="st">'ex_post_payoff'</span>] <span class="op">+=</span> ex_post_payoff_correct</span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Only include in forced choice metric if it's not a tie</span></span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> should_include:</span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>                ai_metrics[ai_type][<span class="st">'forced_correct'</span>] <span class="op">+=</span> forced_correct</span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>                ai_metrics[ai_type][<span class="st">'forced_type_correct'</span>] <span class="op">+=</span> ex_post_type_correct  <span class="co"># Add ex-post type for forced choice</span></span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>                ai_metrics[ai_type][<span class="st">'forced_payoff_correct'</span>] <span class="op">+=</span> ex_post_payoff_correct  <span class="co"># Add ex-post payoff for forced choice</span></span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>                ai_metrics[ai_type][<span class="st">'forced_total'</span>] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Record detailed data for this trial</span></span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>            detailed_data.append({</span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>                <span class="st">'sim_id'</span>: sim_id,</span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>                <span class="st">'prior'</span>: p,</span>
+<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a>                <span class="st">'trial'</span>: trial,</span>
+<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ai_type'</span>: ai_type,</span>
+<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>                <span class="st">'true_share_type'</span>: share_type,</span>
+<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>                <span class="st">'outcome'</span>: current_outcome,</span>
+<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ai_rec'</span>: ai_rec,</span>
+<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ev_optimal'</span>: ev_optimal_decision,</span>
+<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ev_accuracy'</span>: ex_ante_correct,</span>
+<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>                <span class="st">'rec_accuracy'</span>: ex_post_type_correct,</span>
+<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a>                <span class="st">'outcome_accuracy'</span>: ex_post_payoff_correct,</span>
+<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>                <span class="st">'forced_accuracy'</span>: forced_correct <span class="cf">if</span> should_include <span class="cf">else</span> <span class="va">None</span>,</span>
+<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a>                <span class="st">'is_ev_tie'</span>: <span class="kw">not</span> should_include</span>
+<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a>            })</span>
+<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Convert trial sums to averages</span></span>
+<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types:</span>
+<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> metric <span class="kw">in</span> [<span class="st">'ex_ante'</span>, <span class="st">'ex_post_type'</span>, <span class="st">'ex_post_payoff'</span>]:</span>
+<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a>            ai_metrics[ai_type][metric] <span class="op">/=</span> config.num_trials</span>
+<span id="cb6-108"><a href="#cb6-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-109"><a href="#cb6-109" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ai_metrics, detailed_data</span>
 <span id="cb6-110"><a href="#cb6-110" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-111"><a href="#cb6-111" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters:</span></span>
-<span id="cb6-112"><a href="#cb6-112" aria-hidden="true" tabindex="-1"></a><span class="co">        config: Simulation configuration parameters</span></span>
-<span id="cb6-113"><a href="#cb6-113" aria-hidden="true" tabindex="-1"></a><span class="co">        num_simulations_to_run: Optional override for number of simulations</span></span>
+<span id="cb6-111"><a href="#cb6-111" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_all_simulations(config: SimulationConfig, num_simulations_to_run: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>) <span class="op">-&gt;</span> Tuple[Dict[<span class="bu">float</span>, Dict[<span class="bu">str</span>, Dict[<span class="bu">str</span>, <span class="bu">float</span>]]], Dict[<span class="bu">float</span>, Dict[<span class="bu">str</span>, Dict[<span class="bu">str</span>, <span class="bu">float</span>]]], pd.DataFrame]:</span>
+<span id="cb6-112"><a href="#cb6-112" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb6-113"><a href="#cb6-113" aria-hidden="true" tabindex="-1"></a><span class="co">    Run simulations for all prior probabilities</span></span>
 <span id="cb6-114"><a href="#cb6-114" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
-<span id="cb6-116"><a href="#cb6-116" aria-hidden="true" tabindex="-1"></a><span class="co">        Tuple with:</span></span>
-<span id="cb6-117"><a href="#cb6-117" aria-hidden="true" tabindex="-1"></a><span class="co">        - Standard results dictionary</span></span>
-<span id="cb6-118"><a href="#cb6-118" aria-hidden="true" tabindex="-1"></a><span class="co">        - Forced choice results dictionary</span></span>
-<span id="cb6-119"><a href="#cb6-119" aria-hidden="true" tabindex="-1"></a><span class="co">        - DataFrame with detailed trial data</span></span>
-<span id="cb6-120"><a href="#cb6-120" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> num_simulations_to_run <span class="kw">is</span> <span class="va">None</span>:</span>
-<span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a>        num_simulations_to_run <span class="op">=</span> config.num_simulations</span>
-<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-124"><a href="#cb6-124" aria-hidden="true" tabindex="-1"></a>    standard_results <span class="op">=</span> {}</span>
-<span id="cb6-125"><a href="#cb6-125" aria-hidden="true" tabindex="-1"></a>    forced_results <span class="op">=</span> {}</span>
-<span id="cb6-126"><a href="#cb6-126" aria-hidden="true" tabindex="-1"></a>    all_detailed_data <span class="op">=</span> []</span>
+<span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters:</span></span>
+<span id="cb6-116"><a href="#cb6-116" aria-hidden="true" tabindex="-1"></a><span class="co">        config: Simulation configuration parameters</span></span>
+<span id="cb6-117"><a href="#cb6-117" aria-hidden="true" tabindex="-1"></a><span class="co">        num_simulations_to_run: Optional override for number of simulations</span></span>
+<span id="cb6-118"><a href="#cb6-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-119"><a href="#cb6-119" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb6-120"><a href="#cb6-120" aria-hidden="true" tabindex="-1"></a><span class="co">        Tuple with:</span></span>
+<span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a><span class="co">        - Standard results dictionary</span></span>
+<span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a><span class="co">        - Forced choice results dictionary</span></span>
+<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a><span class="co">        - DataFrame with detailed trial data</span></span>
+<span id="cb6-124"><a href="#cb6-124" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb6-125"><a href="#cb6-125" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> num_simulations_to_run <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb6-126"><a href="#cb6-126" aria-hidden="true" tabindex="-1"></a>        num_simulations_to_run <span class="op">=</span> config.num_simulations</span>
 <span id="cb6-127"><a href="#cb6-127" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-128"><a href="#cb6-128" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> p <span class="kw">in</span> config.p:</span>
-<span id="cb6-129"><a href="#cb6-129" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Initialize accumulators for this prior</span></span>
-<span id="cb6-130"><a href="#cb6-130" aria-hidden="true" tabindex="-1"></a>        sums <span class="op">=</span> {ai_type: {</span>
-<span id="cb6-131"><a href="#cb6-131" aria-hidden="true" tabindex="-1"></a>            <span class="st">'ex_ante'</span>: <span class="fl">0.0</span>, </span>
-<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a>            <span class="st">'ex_post_type'</span>: <span class="fl">0.0</span>, </span>
-<span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a>            <span class="st">'ex_post_payoff'</span>: <span class="fl">0.0</span>,</span>
-<span id="cb6-134"><a href="#cb6-134" aria-hidden="true" tabindex="-1"></a>            <span class="st">'forced_correct'</span>: <span class="fl">0.0</span>,</span>
-<span id="cb6-135"><a href="#cb6-135" aria-hidden="true" tabindex="-1"></a>            <span class="st">'forced_total'</span>: <span class="fl">0.0</span></span>
-<span id="cb6-136"><a href="#cb6-136" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types}</span>
-<span id="cb6-137"><a href="#cb6-137" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-138"><a href="#cb6-138" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run simulations for this prior probability</span></span>
-<span id="cb6-139"><a href="#cb6-139" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> sim_id <span class="kw">in</span> <span class="bu">range</span>(num_simulations_to_run):</span>
-<span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a>            sim_results, detailed_data <span class="op">=</span> run_simulation(p, sim_id, config)</span>
-<span id="cb6-141"><a href="#cb6-141" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-142"><a href="#cb6-142" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Collect detailed data</span></span>
-<span id="cb6-143"><a href="#cb6-143" aria-hidden="true" tabindex="-1"></a>            all_detailed_data.extend(detailed_data)</span>
-<span id="cb6-144"><a href="#cb6-144" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-145"><a href="#cb6-145" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Aggregate results</span></span>
-<span id="cb6-146"><a href="#cb6-146" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types:</span>
-<span id="cb6-147"><a href="#cb6-147" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> metric <span class="kw">in</span> sums[ai_type]:</span>
-<span id="cb6-148"><a href="#cb6-148" aria-hidden="true" tabindex="-1"></a>                    sums[ai_type][metric] <span class="op">+=</span> sim_results[ai_type][metric]</span>
-<span id="cb6-149"><a href="#cb6-149" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-150"><a href="#cb6-150" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Process standard results</span></span>
-<span id="cb6-151"><a href="#cb6-151" aria-hidden="true" tabindex="-1"></a>        standard_results[p] <span class="op">=</span> {}</span>
-<span id="cb6-152"><a href="#cb6-152" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types:</span>
-<span id="cb6-153"><a href="#cb6-153" aria-hidden="true" tabindex="-1"></a>            standard_results[p][ai_type] <span class="op">=</span> {</span>
-<span id="cb6-154"><a href="#cb6-154" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_ante'</span>: sums[ai_type][<span class="st">'ex_ante'</span>] <span class="op">/</span> num_simulations_to_run,</span>
-<span id="cb6-155"><a href="#cb6-155" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_type'</span>: sums[ai_type][<span class="st">'ex_post_type'</span>] <span class="op">/</span> num_simulations_to_run,</span>
-<span id="cb6-156"><a href="#cb6-156" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_payoff'</span>: sums[ai_type][<span class="st">'ex_post_payoff'</span>] <span class="op">/</span> num_simulations_to_run</span>
-<span id="cb6-157"><a href="#cb6-157" aria-hidden="true" tabindex="-1"></a>            }</span>
-<span id="cb6-158"><a href="#cb6-158" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb6-159"><a href="#cb6-159" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Process forced choice results separately</span></span>
-<span id="cb6-160"><a href="#cb6-160" aria-hidden="true" tabindex="-1"></a>        forced_results[p] <span class="op">=</span> {}</span>
-<span id="cb6-161"><a href="#cb6-161" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types:</span>
-<span id="cb6-162"><a href="#cb6-162" aria-hidden="true" tabindex="-1"></a>            total_forced <span class="op">=</span> sums[ai_type][<span class="st">'forced_total'</span>]</span>
-<span id="cb6-163"><a href="#cb6-163" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> total_forced <span class="op">&gt;</span> <span class="dv">0</span>:</span>
-<span id="cb6-164"><a href="#cb6-164" aria-hidden="true" tabindex="-1"></a>                accuracy <span class="op">=</span> sums[ai_type][<span class="st">'forced_correct'</span>] <span class="op">/</span> total_forced</span>
-<span id="cb6-165"><a href="#cb6-165" aria-hidden="true" tabindex="-1"></a>                pct_included <span class="op">=</span> total_forced <span class="op">/</span> (num_simulations_to_run <span class="op">*</span> config.num_trials) <span class="op">*</span> <span class="dv">100</span></span>
-<span id="cb6-166"><a href="#cb6-166" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
-<span id="cb6-167"><a href="#cb6-167" aria-hidden="true" tabindex="-1"></a>                accuracy <span class="op">=</span> <span class="bu">float</span>(<span class="st">'nan'</span>)</span>
-<span id="cb6-168"><a href="#cb6-168" aria-hidden="true" tabindex="-1"></a>                pct_included <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb6-169"><a href="#cb6-169" aria-hidden="true" tabindex="-1"></a>                </span>
-<span id="cb6-170"><a href="#cb6-170" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Format exactly like standard_results to work with existing plot function</span></span>
-<span id="cb6-171"><a href="#cb6-171" aria-hidden="true" tabindex="-1"></a>            forced_results[p][ai_type] <span class="op">=</span> {</span>
-<span id="cb6-172"><a href="#cb6-172" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_ante'</span>: accuracy,</span>
-<span id="cb6-173"><a href="#cb6-173" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_type'</span>: <span class="bu">float</span>(<span class="st">'nan'</span>),  <span class="co"># Not applicable</span></span>
-<span id="cb6-174"><a href="#cb6-174" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_payoff'</span>: <span class="bu">float</span>(<span class="st">'nan'</span>),  <span class="co"># Not applicable</span></span>
-<span id="cb6-175"><a href="#cb6-175" aria-hidden="true" tabindex="-1"></a>                <span class="st">'pct_included'</span>: pct_included</span>
-<span id="cb6-176"><a href="#cb6-176" aria-hidden="true" tabindex="-1"></a>            }</span>
-<span id="cb6-177"><a href="#cb6-177" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-178"><a href="#cb6-178" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Convert detailed data to DataFrame</span></span>
-<span id="cb6-179"><a href="#cb6-179" aria-hidden="true" tabindex="-1"></a>    trial_df <span class="op">=</span> pd.DataFrame(all_detailed_data)</span>
-<span id="cb6-180"><a href="#cb6-180" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-181"><a href="#cb6-181" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> standard_results, forced_results, trial_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-128"><a href="#cb6-128" aria-hidden="true" tabindex="-1"></a>    standard_results <span class="op">=</span> {}</span>
+<span id="cb6-129"><a href="#cb6-129" aria-hidden="true" tabindex="-1"></a>    forced_results <span class="op">=</span> {}</span>
+<span id="cb6-130"><a href="#cb6-130" aria-hidden="true" tabindex="-1"></a>    all_detailed_data <span class="op">=</span> []</span>
+<span id="cb6-131"><a href="#cb6-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> p <span class="kw">in</span> config.p:</span>
+<span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Initialize accumulators for this prior</span></span>
+<span id="cb6-134"><a href="#cb6-134" aria-hidden="true" tabindex="-1"></a>        sums <span class="op">=</span> {ai_type: {</span>
+<span id="cb6-135"><a href="#cb6-135" aria-hidden="true" tabindex="-1"></a>            <span class="st">'ex_ante'</span>: <span class="fl">0.0</span>, </span>
+<span id="cb6-136"><a href="#cb6-136" aria-hidden="true" tabindex="-1"></a>            <span class="st">'ex_post_type'</span>: <span class="fl">0.0</span>, </span>
+<span id="cb6-137"><a href="#cb6-137" aria-hidden="true" tabindex="-1"></a>            <span class="st">'ex_post_payoff'</span>: <span class="fl">0.0</span>,</span>
+<span id="cb6-138"><a href="#cb6-138" aria-hidden="true" tabindex="-1"></a>            <span class="st">'forced_correct'</span>: <span class="fl">0.0</span>,</span>
+<span id="cb6-139"><a href="#cb6-139" aria-hidden="true" tabindex="-1"></a>            <span class="st">'forced_type_correct'</span>: <span class="fl">0.0</span>,  <span class="co"># New metric</span></span>
+<span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a>            <span class="st">'forced_payoff_correct'</span>: <span class="fl">0.0</span>,  <span class="co"># New metric</span></span>
+<span id="cb6-141"><a href="#cb6-141" aria-hidden="true" tabindex="-1"></a>            <span class="st">'forced_total'</span>: <span class="fl">0.0</span></span>
+<span id="cb6-142"><a href="#cb6-142" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types}</span>
+<span id="cb6-143"><a href="#cb6-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-144"><a href="#cb6-144" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run simulations for this prior probability</span></span>
+<span id="cb6-145"><a href="#cb6-145" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> sim_id <span class="kw">in</span> <span class="bu">range</span>(num_simulations_to_run):</span>
+<span id="cb6-146"><a href="#cb6-146" aria-hidden="true" tabindex="-1"></a>            sim_results, detailed_data <span class="op">=</span> run_simulation(p, sim_id, config)</span>
+<span id="cb6-147"><a href="#cb6-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-148"><a href="#cb6-148" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Collect detailed data</span></span>
+<span id="cb6-149"><a href="#cb6-149" aria-hidden="true" tabindex="-1"></a>            all_detailed_data.extend(detailed_data)</span>
+<span id="cb6-150"><a href="#cb6-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-151"><a href="#cb6-151" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Aggregate results</span></span>
+<span id="cb6-152"><a href="#cb6-152" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types:</span>
+<span id="cb6-153"><a href="#cb6-153" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> metric <span class="kw">in</span> sums[ai_type]:</span>
+<span id="cb6-154"><a href="#cb6-154" aria-hidden="true" tabindex="-1"></a>                    sums[ai_type][metric] <span class="op">+=</span> sim_results[ai_type][metric]</span>
+<span id="cb6-155"><a href="#cb6-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-156"><a href="#cb6-156" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Process standard results</span></span>
+<span id="cb6-157"><a href="#cb6-157" aria-hidden="true" tabindex="-1"></a>        standard_results[p] <span class="op">=</span> {}</span>
+<span id="cb6-158"><a href="#cb6-158" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types:</span>
+<span id="cb6-159"><a href="#cb6-159" aria-hidden="true" tabindex="-1"></a>            standard_results[p][ai_type] <span class="op">=</span> {</span>
+<span id="cb6-160"><a href="#cb6-160" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_ante'</span>: sums[ai_type][<span class="st">'ex_ante'</span>] <span class="op">/</span> num_simulations_to_run,</span>
+<span id="cb6-161"><a href="#cb6-161" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_type'</span>: sums[ai_type][<span class="st">'ex_post_type'</span>] <span class="op">/</span> num_simulations_to_run,</span>
+<span id="cb6-162"><a href="#cb6-162" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_payoff'</span>: sums[ai_type][<span class="st">'ex_post_payoff'</span>] <span class="op">/</span> num_simulations_to_run</span>
+<span id="cb6-163"><a href="#cb6-163" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb6-164"><a href="#cb6-164" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-165"><a href="#cb6-165" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Process forced choice results separately</span></span>
+<span id="cb6-166"><a href="#cb6-166" aria-hidden="true" tabindex="-1"></a>        forced_results[p] <span class="op">=</span> {}</span>
+<span id="cb6-167"><a href="#cb6-167" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types:</span>
+<span id="cb6-168"><a href="#cb6-168" aria-hidden="true" tabindex="-1"></a>            total_forced <span class="op">=</span> sums[ai_type][<span class="st">'forced_total'</span>]</span>
+<span id="cb6-169"><a href="#cb6-169" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> total_forced <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb6-170"><a href="#cb6-170" aria-hidden="true" tabindex="-1"></a>                ex_ante_accuracy <span class="op">=</span> sums[ai_type][<span class="st">'forced_correct'</span>] <span class="op">/</span> total_forced</span>
+<span id="cb6-171"><a href="#cb6-171" aria-hidden="true" tabindex="-1"></a>                ex_post_type_accuracy <span class="op">=</span> sums[ai_type][<span class="st">'forced_type_correct'</span>] <span class="op">/</span> total_forced  <span class="co"># Calculate ex-post type</span></span>
+<span id="cb6-172"><a href="#cb6-172" aria-hidden="true" tabindex="-1"></a>                ex_post_payoff_accuracy <span class="op">=</span> sums[ai_type][<span class="st">'forced_payoff_correct'</span>] <span class="op">/</span> total_forced  <span class="co"># Calculate ex-post payoff</span></span>
+<span id="cb6-173"><a href="#cb6-173" aria-hidden="true" tabindex="-1"></a>                pct_included <span class="op">=</span> total_forced <span class="op">/</span> (num_simulations_to_run <span class="op">*</span> config.num_trials) <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb6-174"><a href="#cb6-174" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb6-175"><a href="#cb6-175" aria-hidden="true" tabindex="-1"></a>                ex_ante_accuracy <span class="op">=</span> <span class="bu">float</span>(<span class="st">'nan'</span>)</span>
+<span id="cb6-176"><a href="#cb6-176" aria-hidden="true" tabindex="-1"></a>                ex_post_type_accuracy <span class="op">=</span> <span class="bu">float</span>(<span class="st">'nan'</span>)</span>
+<span id="cb6-177"><a href="#cb6-177" aria-hidden="true" tabindex="-1"></a>                ex_post_payoff_accuracy <span class="op">=</span> <span class="bu">float</span>(<span class="st">'nan'</span>)</span>
+<span id="cb6-178"><a href="#cb6-178" aria-hidden="true" tabindex="-1"></a>                pct_included <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-179"><a href="#cb6-179" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb6-180"><a href="#cb6-180" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Format exactly like standard_results to work with existing plot function</span></span>
+<span id="cb6-181"><a href="#cb6-181" aria-hidden="true" tabindex="-1"></a>            forced_results[p][ai_type] <span class="op">=</span> {</span>
+<span id="cb6-182"><a href="#cb6-182" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_ante'</span>: ex_ante_accuracy,</span>
+<span id="cb6-183"><a href="#cb6-183" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_type'</span>: ex_post_type_accuracy,</span>
+<span id="cb6-184"><a href="#cb6-184" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_payoff'</span>: ex_post_payoff_accuracy,</span>
+<span id="cb6-185"><a href="#cb6-185" aria-hidden="true" tabindex="-1"></a>                <span class="st">'pct_included'</span>: pct_included</span>
+<span id="cb6-186"><a href="#cb6-186" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb6-187"><a href="#cb6-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-188"><a href="#cb6-188" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Convert detailed data to DataFrame</span></span>
+<span id="cb6-189"><a href="#cb6-189" aria-hidden="true" tabindex="-1"></a>    trial_df <span class="op">=</span> pd.DataFrame(all_detailed_data)</span>
+<span id="cb6-190"><a href="#cb6-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-191"><a href="#cb6-191" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> standard_results, forced_results, trial_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 </section>
 </section>
@@ -639,7 +667,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>seq_probability</code>: Calculates the probability of a specific sequence of outcomes given the share type (good or bad) and the prior probability.</li>
 <li><code>run_all_measures</code>: Runs the analytical solution for all measures (ex-ante, ex-post type, and ex-post payoff) across all prior probabilities and outcomes.</li>
 </ul>
-<div id="b172035a" class="cell" data-execution_count="7">
+<div id="bc0045e8" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">##########################</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Probability of a sequence</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">##########################</span></span>
@@ -678,7 +708,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Main enumeration function</span></span>
 <span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a><span class="co">##########################</span></span>
 <span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_all_measures(config: SimulationConfig) <span class="op">-&gt;</span> Dict[<span class="bu">float</span>, Dict[<span class="bu">str</span>, Dict[<span class="bu">str</span>, <span class="bu">float</span>]]]:</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_all_measures(config: SimulationConfig) <span class="op">-&gt;</span> Tuple[Dict[<span class="bu">float</span>, Dict[<span class="bu">str</span>, Dict[<span class="bu">str</span>, <span class="bu">float</span>]]], Dict[<span class="bu">float</span>, Dict[<span class="bu">str</span>, Dict[<span class="bu">str</span>, <span class="bu">float</span>]]]]:</span>
 <span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a><span class="co">    Enumerates all 2^num_trials sequences, simulates each AI's picks,</span></span>
 <span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="co">    and calculates three measures of accuracy using NumPy for vectorization.</span></span>
@@ -687,115 +717,182 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a><span class="co">        config: Simulation configuration parameters</span></span>
 <span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
-<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a><span class="co">        Nested dictionary with results for each prior and AI type</span></span>
-<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Pre-generate all possible sequences as binary arrays (0=low, 1=high)</span></span>
-<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This gives us a 2D array where each row is one possible sequence</span></span>
-<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>    sequences <span class="op">=</span> np.array(<span class="bu">list</span>(itertools.product([<span class="dv">0</span>, <span class="dv">1</span>], repeat<span class="op">=</span>config.num_trials)))</span>
-<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Results dictionary</span></span>
-<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> {}</span>
-<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>    <span class="co"># For each prior probability</span></span>
-<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> p <span class="kw">in</span> config.p:</span>
-<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Calculating analytical solution for p=</span><span class="sc">{</span>p<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Pre-calculate probabilities for all sequences</span></span>
-<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Probability of sequence if share is good</span></span>
-<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>        probs_good <span class="op">=</span> np.zeros(<span class="bu">len</span>(sequences))</span>
-<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Probability of sequence if share is bad</span></span>
-<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>        probs_bad <span class="op">=</span> np.zeros(<span class="bu">len</span>(sequences))</span>
-<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Pre-convert sequences to string representations for processing</span></span>
-<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>        seq_strings <span class="op">=</span> []</span>
-<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> seq <span class="kw">in</span> sequences:</span>
-<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Convert binary (0,1) to ('low','high')</span></span>
-<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>            seq_str <span class="op">=</span> [<span class="st">'high'</span> <span class="cf">if</span> bit <span class="op">==</span> <span class="dv">1</span> <span class="cf">else</span> <span class="st">'low'</span> <span class="cf">for</span> bit <span class="kw">in</span> seq]</span>
-<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>            seq_strings.append(seq_str)</span>
-<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Calculate probabilities for this sequence</span></span>
-<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a>            prob_good <span class="op">=</span> seq_probability(seq, <span class="st">'good'</span>, config)</span>
-<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>            prob_bad <span class="op">=</span> seq_probability(seq, <span class="st">'bad'</span>, config)</span>
-<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Store in arrays</span></span>
-<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>            probs_good[<span class="bu">len</span>(seq_strings)<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> prob_good</span>
-<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>            probs_bad[<span class="bu">len</span>(seq_strings)<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> prob_bad</span>
-<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Initialize measures for each AI type</span></span>
-<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a>        measure_sums <span class="op">=</span> {</span>
-<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a>            ai_type: {</span>
-<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_ante'</span>: <span class="fl">0.0</span>,</span>
-<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_type'</span>: <span class="fl">0.0</span>,</span>
-<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_payoff'</span>: <span class="fl">0.0</span></span>
-<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a>            }</span>
-<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types</span>
-<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a>        <span class="co"># For each possible sequence</span></span>
-<span id="cb7-93"><a href="#cb7-93" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i, (seq, seq_str) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(sequences, seq_strings)):</span>
-<span id="cb7-94"><a href="#cb7-94" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Probability weights</span></span>
-<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a>            prob_good <span class="op">=</span> probs_good[i]</span>
-<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a>            prob_bad <span class="op">=</span> probs_bad[i]</span>
-<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a>            seq_weight <span class="op">=</span> p <span class="op">*</span> prob_good <span class="op">+</span> (<span class="fl">1.0</span> <span class="op">-</span> p) <span class="op">*</span> prob_bad</span>
-<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Skip sequences with near-zero probability to save computation</span></span>
-<span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> seq_weight <span class="op">&lt;</span> <span class="fl">1e-10</span>:</span>
-<span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a>                <span class="cf">continue</span></span>
-<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a>            <span class="co"># For each AI type</span></span>
-<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types:</span>
-<span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Tracking correctness measures</span></span>
-<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a>                correct_ex_ante <span class="op">=</span> <span class="fl">0.0</span></span>
-<span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a>                correct_ex_post_good <span class="op">=</span> <span class="fl">0.0</span></span>
-<span id="cb7-108"><a href="#cb7-108" aria-hidden="true" tabindex="-1"></a>                correct_ex_post_bad <span class="op">=</span> <span class="fl">0.0</span></span>
-<span id="cb7-109"><a href="#cb7-109" aria-hidden="true" tabindex="-1"></a>                correct_ex_post_payoff <span class="op">=</span> <span class="fl">0.0</span></span>
-<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Simulate the AI observing outcomes one by one</span></span>
-<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a>                observed <span class="op">=</span> []</span>
-<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> t, outcome <span class="kw">in</span> <span class="bu">enumerate</span>(seq_str):</span>
-<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># Get AI recommendation based on observations so far</span></span>
-<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a>                    current_trial <span class="op">=</span> <span class="bu">len</span>(observed)</span>
-<span id="cb7-116"><a href="#cb7-116" aria-hidden="true" tabindex="-1"></a>                    ai_rec <span class="op">=</span> get_ai_recommendation(ai_type, p, observed, current_trial, config)</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a><span class="co">        Tuple with:</span></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a><span class="co">        - Standard results dictionary</span></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a><span class="co">        - Forced choice results dictionary</span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Pre-generate all possible sequences as binary arrays (0=low, 1=high)</span></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This gives us a 2D array where each row is one possible sequence</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>    sequences <span class="op">=</span> np.array(<span class="bu">list</span>(itertools.product([<span class="dv">0</span>, <span class="dv">1</span>], repeat<span class="op">=</span>config.num_trials)))</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Results dictionary</span></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>    standard_results <span class="op">=</span> {}</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>    forced_results <span class="op">=</span> {}</span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>    <span class="co"># For each prior probability</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> p <span class="kw">in</span> config.p:</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Calculating analytical solution for p=</span><span class="sc">{</span>p<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Pre-calculate probabilities for all sequences</span></span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Probability of sequence if share is good</span></span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>        probs_good <span class="op">=</span> np.zeros(<span class="bu">len</span>(sequences))</span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Probability of sequence if share is bad</span></span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>        probs_bad <span class="op">=</span> np.zeros(<span class="bu">len</span>(sequences))</span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Pre-convert sequences to string representations for processing</span></span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>        seq_strings <span class="op">=</span> []</span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> seq <span class="kw">in</span> sequences:</span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Convert binary (0,1) to ('low','high')</span></span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>            seq_str <span class="op">=</span> [<span class="st">'high'</span> <span class="cf">if</span> bit <span class="op">==</span> <span class="dv">1</span> <span class="cf">else</span> <span class="st">'low'</span> <span class="cf">for</span> bit <span class="kw">in</span> seq]</span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a>            seq_strings.append(seq_str)</span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Calculate probabilities for this sequence</span></span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>            prob_good <span class="op">=</span> seq_probability(seq, <span class="st">'good'</span>, config)</span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>            prob_bad <span class="op">=</span> seq_probability(seq, <span class="st">'bad'</span>, config)</span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Store in arrays</span></span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>            probs_good[<span class="bu">len</span>(seq_strings)<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> prob_good</span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a>            probs_bad[<span class="bu">len</span>(seq_strings)<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> prob_bad</span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Initialize measures for each AI type (standard measures)</span></span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a>        measure_sums <span class="op">=</span> {</span>
+<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a>            ai_type: {</span>
+<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_ante'</span>: <span class="fl">0.0</span>,</span>
+<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_type'</span>: <span class="fl">0.0</span>,</span>
+<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_payoff'</span>: <span class="fl">0.0</span></span>
+<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types</span>
+<span id="cb7-93"><a href="#cb7-93" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb7-94"><a href="#cb7-94" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Initialize forced choice measures</span></span>
+<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a>        forced_sums <span class="op">=</span> {</span>
+<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a>            ai_type: {</span>
+<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_ante'</span>: <span class="fl">0.0</span>,</span>
+<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_type'</span>: <span class="fl">0.0</span>,</span>
+<span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_payoff'</span>: <span class="fl">0.0</span>,</span>
+<span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a>                <span class="st">'total_cases'</span>: <span class="fl">0.0</span>,</span>
+<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a>                <span class="st">'total_weight'</span>: <span class="fl">0.0</span></span>
+<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types</span>
+<span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a>        <span class="co"># For each possible sequence</span></span>
+<span id="cb7-108"><a href="#cb7-108" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i, (seq, seq_str) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(sequences, seq_strings)):</span>
+<span id="cb7-109"><a href="#cb7-109" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Probability weights</span></span>
+<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a>            prob_good <span class="op">=</span> probs_good[i]</span>
+<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a>            prob_bad <span class="op">=</span> probs_bad[i]</span>
+<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a>            seq_weight <span class="op">=</span> p <span class="op">*</span> prob_good <span class="op">+</span> (<span class="fl">1.0</span> <span class="op">-</span> p) <span class="op">*</span> prob_bad</span>
+<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Skip sequences with near-zero probability to save computation</span></span>
+<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> seq_weight <span class="op">&lt;</span> <span class="fl">1e-10</span>:</span>
+<span id="cb7-116"><a href="#cb7-116" aria-hidden="true" tabindex="-1"></a>                <span class="cf">continue</span></span>
 <span id="cb7-117"><a href="#cb7-117" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># Calculate true Bayesian posterior for EV measure</span></span>
-<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a>                    true_posterior_good <span class="op">=</span> calculate_posterior(<span class="st">'perfect'</span>, p, observed, current_trial, config)</span>
-<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># 1) Ex-Ante correctness</span></span>
-<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a>                    correct_ex_ante <span class="op">+=</span> measure_ex_ante_correctness(ai_rec, true_posterior_good, config)</span>
-<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># 2) Ex-Post (share-type) correctness</span></span>
-<span id="cb7-125"><a href="#cb7-125" aria-hidden="true" tabindex="-1"></a>                    correct_ex_post_good <span class="op">+=</span> measure_ex_post_share_type(ai_rec, <span class="st">'good'</span>)</span>
-<span id="cb7-126"><a href="#cb7-126" aria-hidden="true" tabindex="-1"></a>                    correct_ex_post_bad <span class="op">+=</span> measure_ex_post_share_type(ai_rec, <span class="st">'bad'</span>)</span>
-<span id="cb7-127"><a href="#cb7-127" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-128"><a href="#cb7-128" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># 3) Ex-Post (payoff-based) correctness</span></span>
-<span id="cb7-129"><a href="#cb7-129" aria-hidden="true" tabindex="-1"></a>                    correct_ex_post_payoff <span class="op">+=</span> measure_ex_post_payoff(ai_rec, outcome)</span>
-<span id="cb7-130"><a href="#cb7-130" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-131"><a href="#cb7-131" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># Update observed outcomes for next trial</span></span>
-<span id="cb7-132"><a href="#cb7-132" aria-hidden="true" tabindex="-1"></a>                    observed.append(outcome)</span>
-<span id="cb7-133"><a href="#cb7-133" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-134"><a href="#cb7-134" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Update measure sums with sequence-weighted correctness</span></span>
-<span id="cb7-135"><a href="#cb7-135" aria-hidden="true" tabindex="-1"></a>                measure_sums[ai_type][<span class="st">'ex_ante'</span>] <span class="op">+=</span> correct_ex_ante <span class="op">*</span> seq_weight</span>
-<span id="cb7-136"><a href="#cb7-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-137"><a href="#cb7-137" aria-hidden="true" tabindex="-1"></a>                measure_sums[ai_type][<span class="st">'ex_post_type'</span>] <span class="op">+=</span> (</span>
-<span id="cb7-138"><a href="#cb7-138" aria-hidden="true" tabindex="-1"></a>                    correct_ex_post_good <span class="op">*</span> (p <span class="op">*</span> prob_good) <span class="op">+</span></span>
-<span id="cb7-139"><a href="#cb7-139" aria-hidden="true" tabindex="-1"></a>                    correct_ex_post_bad <span class="op">*</span> ((<span class="fl">1.0</span> <span class="op">-</span> p) <span class="op">*</span> prob_bad)</span>
-<span id="cb7-140"><a href="#cb7-140" aria-hidden="true" tabindex="-1"></a>                )</span>
-<span id="cb7-141"><a href="#cb7-141" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-142"><a href="#cb7-142" aria-hidden="true" tabindex="-1"></a>                measure_sums[ai_type][<span class="st">'ex_post_payoff'</span>] <span class="op">+=</span> correct_ex_post_payoff <span class="op">*</span> seq_weight</span>
-<span id="cb7-143"><a href="#cb7-143" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-144"><a href="#cb7-144" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Process results for this prior probability</span></span>
-<span id="cb7-145"><a href="#cb7-145" aria-hidden="true" tabindex="-1"></a>        final_for_p <span class="op">=</span> {}</span>
-<span id="cb7-146"><a href="#cb7-146" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types:</span>
-<span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Convert sums to fractions by dividing by number of trials</span></span>
-<span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a>            final_for_p[ai_type] <span class="op">=</span> {</span>
-<span id="cb7-149"><a href="#cb7-149" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_ante'</span>: measure_sums[ai_type][<span class="st">'ex_ante'</span>] <span class="op">/</span> <span class="bu">float</span>(config.num_trials),</span>
-<span id="cb7-150"><a href="#cb7-150" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_type'</span>: measure_sums[ai_type][<span class="st">'ex_post_type'</span>] <span class="op">/</span> <span class="bu">float</span>(config.num_trials),</span>
-<span id="cb7-151"><a href="#cb7-151" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_payoff'</span>: measure_sums[ai_type][<span class="st">'ex_post_payoff'</span>] <span class="op">/</span> <span class="bu">float</span>(config.num_trials)</span>
-<span id="cb7-152"><a href="#cb7-152" aria-hidden="true" tabindex="-1"></a>            }</span>
-<span id="cb7-153"><a href="#cb7-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-154"><a href="#cb7-154" aria-hidden="true" tabindex="-1"></a>        results[p] <span class="op">=</span> final_for_p</span>
+<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a>            <span class="co"># For each AI type</span></span>
+<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types:</span>
+<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Tracking correctness measures</span></span>
+<span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a>                correct_ex_ante <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a>                correct_ex_post_good <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a>                correct_ex_post_bad <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a>                correct_ex_post_payoff <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb7-125"><a href="#cb7-125" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb7-126"><a href="#cb7-126" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Forced choice measures</span></span>
+<span id="cb7-127"><a href="#cb7-127" aria-hidden="true" tabindex="-1"></a>                forced_ex_ante <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb7-128"><a href="#cb7-128" aria-hidden="true" tabindex="-1"></a>                forced_ex_post_type <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb7-129"><a href="#cb7-129" aria-hidden="true" tabindex="-1"></a>                forced_ex_post_payoff <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb7-130"><a href="#cb7-130" aria-hidden="true" tabindex="-1"></a>                forced_cases <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb7-131"><a href="#cb7-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-132"><a href="#cb7-132" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Simulate the AI observing outcomes one by one</span></span>
+<span id="cb7-133"><a href="#cb7-133" aria-hidden="true" tabindex="-1"></a>                observed <span class="op">=</span> []</span>
+<span id="cb7-134"><a href="#cb7-134" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> t, outcome <span class="kw">in</span> <span class="bu">enumerate</span>(seq_str):</span>
+<span id="cb7-135"><a href="#cb7-135" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># Get AI recommendation based on observations so far</span></span>
+<span id="cb7-136"><a href="#cb7-136" aria-hidden="true" tabindex="-1"></a>                    current_trial <span class="op">=</span> <span class="bu">len</span>(observed)</span>
+<span id="cb7-137"><a href="#cb7-137" aria-hidden="true" tabindex="-1"></a>                    ai_rec <span class="op">=</span> get_ai_recommendation(ai_type, p, observed, current_trial, config)</span>
+<span id="cb7-138"><a href="#cb7-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-139"><a href="#cb7-139" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># Calculate true Bayesian posterior for EV measure</span></span>
+<span id="cb7-140"><a href="#cb7-140" aria-hidden="true" tabindex="-1"></a>                    true_posterior_good <span class="op">=</span> calculate_posterior(<span class="st">'perfect'</span>, p, observed, current_trial, config)</span>
+<span id="cb7-141"><a href="#cb7-141" aria-hidden="true" tabindex="-1"></a>                    </span>
+<span id="cb7-142"><a href="#cb7-142" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># Calculate expected return for checking EV ties</span></span>
+<span id="cb7-143"><a href="#cb7-143" aria-hidden="true" tabindex="-1"></a>                    expected_return <span class="op">=</span> calculate_expected_return(true_posterior_good, config)</span>
+<span id="cb7-144"><a href="#cb7-144" aria-hidden="true" tabindex="-1"></a>                    is_ev_tie <span class="op">=</span> <span class="bu">abs</span>(expected_return <span class="op">-</span> config.bond_payoff) <span class="op">&lt;</span> <span class="fl">1e-15</span></span>
+<span id="cb7-145"><a href="#cb7-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-146"><a href="#cb7-146" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># 1) Ex-Ante correctness</span></span>
+<span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a>                    ex_ante_correct <span class="op">=</span> measure_ex_ante_correctness(ai_rec, true_posterior_good, config)</span>
+<span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a>                    correct_ex_ante <span class="op">+=</span> ex_ante_correct</span>
+<span id="cb7-149"><a href="#cb7-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-150"><a href="#cb7-150" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># 2) Ex-Post (share-type) correctness</span></span>
+<span id="cb7-151"><a href="#cb7-151" aria-hidden="true" tabindex="-1"></a>                    ex_post_good_correct <span class="op">=</span> measure_ex_post_share_type(ai_rec, <span class="st">'good'</span>)</span>
+<span id="cb7-152"><a href="#cb7-152" aria-hidden="true" tabindex="-1"></a>                    ex_post_bad_correct <span class="op">=</span> measure_ex_post_share_type(ai_rec, <span class="st">'bad'</span>)</span>
+<span id="cb7-153"><a href="#cb7-153" aria-hidden="true" tabindex="-1"></a>                    correct_ex_post_good <span class="op">+=</span> ex_post_good_correct</span>
+<span id="cb7-154"><a href="#cb7-154" aria-hidden="true" tabindex="-1"></a>                    correct_ex_post_bad <span class="op">+=</span> ex_post_bad_correct</span>
 <span id="cb7-155"><a href="#cb7-155" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-156"><a href="#cb7-156" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> results</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-156"><a href="#cb7-156" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># 3) Ex-Post (payoff-based) correctness</span></span>
+<span id="cb7-157"><a href="#cb7-157" aria-hidden="true" tabindex="-1"></a>                    ex_post_payoff_correct <span class="op">=</span> measure_ex_post_payoff(ai_rec, outcome)</span>
+<span id="cb7-158"><a href="#cb7-158" aria-hidden="true" tabindex="-1"></a>                    correct_ex_post_payoff <span class="op">+=</span> ex_post_payoff_correct</span>
+<span id="cb7-159"><a href="#cb7-159" aria-hidden="true" tabindex="-1"></a>                    </span>
+<span id="cb7-160"><a href="#cb7-160" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># Forced choice metrics - only count when not a tie</span></span>
+<span id="cb7-161"><a href="#cb7-161" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> <span class="kw">not</span> is_ev_tie:</span>
+<span id="cb7-162"><a href="#cb7-162" aria-hidden="true" tabindex="-1"></a>                        forced_cases <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb7-163"><a href="#cb7-163" aria-hidden="true" tabindex="-1"></a>                        forced_ex_ante <span class="op">+=</span> ex_ante_correct</span>
+<span id="cb7-164"><a href="#cb7-164" aria-hidden="true" tabindex="-1"></a>                        forced_ex_post_type <span class="op">+=</span> (p <span class="op">*</span> prob_good <span class="op">*</span> ex_post_good_correct <span class="op">+</span> </span>
+<span id="cb7-165"><a href="#cb7-165" aria-hidden="true" tabindex="-1"></a>                                               (<span class="fl">1.0</span> <span class="op">-</span> p) <span class="op">*</span> prob_bad <span class="op">*</span> ex_post_bad_correct) <span class="op">/</span> seq_weight</span>
+<span id="cb7-166"><a href="#cb7-166" aria-hidden="true" tabindex="-1"></a>                        forced_ex_post_payoff <span class="op">+=</span> ex_post_payoff_correct</span>
+<span id="cb7-167"><a href="#cb7-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-168"><a href="#cb7-168" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># Update observed outcomes for next trial</span></span>
+<span id="cb7-169"><a href="#cb7-169" aria-hidden="true" tabindex="-1"></a>                    observed.append(outcome)</span>
+<span id="cb7-170"><a href="#cb7-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-171"><a href="#cb7-171" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Update measure sums with sequence-weighted correctness</span></span>
+<span id="cb7-172"><a href="#cb7-172" aria-hidden="true" tabindex="-1"></a>                measure_sums[ai_type][<span class="st">'ex_ante'</span>] <span class="op">+=</span> correct_ex_ante <span class="op">*</span> seq_weight</span>
+<span id="cb7-173"><a href="#cb7-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-174"><a href="#cb7-174" aria-hidden="true" tabindex="-1"></a>                measure_sums[ai_type][<span class="st">'ex_post_type'</span>] <span class="op">+=</span> (</span>
+<span id="cb7-175"><a href="#cb7-175" aria-hidden="true" tabindex="-1"></a>                    correct_ex_post_good <span class="op">*</span> (p <span class="op">*</span> prob_good) <span class="op">+</span></span>
+<span id="cb7-176"><a href="#cb7-176" aria-hidden="true" tabindex="-1"></a>                    correct_ex_post_bad <span class="op">*</span> ((<span class="fl">1.0</span> <span class="op">-</span> p) <span class="op">*</span> prob_bad)</span>
+<span id="cb7-177"><a href="#cb7-177" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb7-178"><a href="#cb7-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-179"><a href="#cb7-179" aria-hidden="true" tabindex="-1"></a>                measure_sums[ai_type][<span class="st">'ex_post_payoff'</span>] <span class="op">+=</span> correct_ex_post_payoff <span class="op">*</span> seq_weight</span>
+<span id="cb7-180"><a href="#cb7-180" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb7-181"><a href="#cb7-181" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Update forced choice measures if we had any non-tie cases</span></span>
+<span id="cb7-182"><a href="#cb7-182" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> forced_cases <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb7-183"><a href="#cb7-183" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># Weight by sequence probability</span></span>
+<span id="cb7-184"><a href="#cb7-184" aria-hidden="true" tabindex="-1"></a>                    forced_sums[ai_type][<span class="st">'ex_ante'</span>] <span class="op">+=</span> forced_ex_ante <span class="op">*</span> seq_weight</span>
+<span id="cb7-185"><a href="#cb7-185" aria-hidden="true" tabindex="-1"></a>                    forced_sums[ai_type][<span class="st">'ex_post_type'</span>] <span class="op">+=</span> forced_ex_post_type <span class="op">*</span> seq_weight</span>
+<span id="cb7-186"><a href="#cb7-186" aria-hidden="true" tabindex="-1"></a>                    forced_sums[ai_type][<span class="st">'ex_post_payoff'</span>] <span class="op">+=</span> forced_ex_post_payoff <span class="op">*</span> seq_weight</span>
+<span id="cb7-187"><a href="#cb7-187" aria-hidden="true" tabindex="-1"></a>                    forced_sums[ai_type][<span class="st">'total_cases'</span>] <span class="op">+=</span> forced_cases <span class="op">*</span> seq_weight</span>
+<span id="cb7-188"><a href="#cb7-188" aria-hidden="true" tabindex="-1"></a>                    forced_sums[ai_type][<span class="st">'total_weight'</span>] <span class="op">+=</span> config.num_trials <span class="op">*</span> seq_weight</span>
+<span id="cb7-189"><a href="#cb7-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-190"><a href="#cb7-190" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Process results for this prior probability</span></span>
+<span id="cb7-191"><a href="#cb7-191" aria-hidden="true" tabindex="-1"></a>        standard_for_p <span class="op">=</span> {}</span>
+<span id="cb7-192"><a href="#cb7-192" aria-hidden="true" tabindex="-1"></a>        forced_for_p <span class="op">=</span> {}</span>
+<span id="cb7-193"><a href="#cb7-193" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-194"><a href="#cb7-194" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types:</span>
+<span id="cb7-195"><a href="#cb7-195" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Convert sums to fractions by dividing by number of trials</span></span>
+<span id="cb7-196"><a href="#cb7-196" aria-hidden="true" tabindex="-1"></a>            standard_for_p[ai_type] <span class="op">=</span> {</span>
+<span id="cb7-197"><a href="#cb7-197" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_ante'</span>: measure_sums[ai_type][<span class="st">'ex_ante'</span>] <span class="op">/</span> <span class="bu">float</span>(config.num_trials),</span>
+<span id="cb7-198"><a href="#cb7-198" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_type'</span>: measure_sums[ai_type][<span class="st">'ex_post_type'</span>] <span class="op">/</span> <span class="bu">float</span>(config.num_trials),</span>
+<span id="cb7-199"><a href="#cb7-199" aria-hidden="true" tabindex="-1"></a>                <span class="st">'ex_post_payoff'</span>: measure_sums[ai_type][<span class="st">'ex_post_payoff'</span>] <span class="op">/</span> <span class="bu">float</span>(config.num_trials)</span>
+<span id="cb7-200"><a href="#cb7-200" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb7-201"><a href="#cb7-201" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb7-202"><a href="#cb7-202" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Calculate forced choice metrics</span></span>
+<span id="cb7-203"><a href="#cb7-203" aria-hidden="true" tabindex="-1"></a>            total_forced_cases <span class="op">=</span> forced_sums[ai_type][<span class="st">'total_cases'</span>]</span>
+<span id="cb7-204"><a href="#cb7-204" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> total_forced_cases <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb7-205"><a href="#cb7-205" aria-hidden="true" tabindex="-1"></a>                forced_for_p[ai_type] <span class="op">=</span> {</span>
+<span id="cb7-206"><a href="#cb7-206" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'ex_ante'</span>: forced_sums[ai_type][<span class="st">'ex_ante'</span>] <span class="op">/</span> total_forced_cases,</span>
+<span id="cb7-207"><a href="#cb7-207" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'ex_post_type'</span>: forced_sums[ai_type][<span class="st">'ex_post_type'</span>] <span class="op">/</span> total_forced_cases,</span>
+<span id="cb7-208"><a href="#cb7-208" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'ex_post_payoff'</span>: forced_sums[ai_type][<span class="st">'ex_post_payoff'</span>] <span class="op">/</span> total_forced_cases,</span>
+<span id="cb7-209"><a href="#cb7-209" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'pct_included'</span>: (total_forced_cases <span class="op">/</span> forced_sums[ai_type][<span class="st">'total_weight'</span>]) <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb7-210"><a href="#cb7-210" aria-hidden="true" tabindex="-1"></a>                }</span>
+<span id="cb7-211"><a href="#cb7-211" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb7-212"><a href="#cb7-212" aria-hidden="true" tabindex="-1"></a>                forced_for_p[ai_type] <span class="op">=</span> {</span>
+<span id="cb7-213"><a href="#cb7-213" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'ex_ante'</span>: <span class="bu">float</span>(<span class="st">'nan'</span>),</span>
+<span id="cb7-214"><a href="#cb7-214" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'ex_post_type'</span>: <span class="bu">float</span>(<span class="st">'nan'</span>),</span>
+<span id="cb7-215"><a href="#cb7-215" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'ex_post_payoff'</span>: <span class="bu">float</span>(<span class="st">'nan'</span>),</span>
+<span id="cb7-216"><a href="#cb7-216" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'pct_included'</span>: <span class="dv">0</span></span>
+<span id="cb7-217"><a href="#cb7-217" aria-hidden="true" tabindex="-1"></a>                }</span>
+<span id="cb7-218"><a href="#cb7-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-219"><a href="#cb7-219" aria-hidden="true" tabindex="-1"></a>        standard_results[p] <span class="op">=</span> standard_for_p</span>
+<span id="cb7-220"><a href="#cb7-220" aria-hidden="true" tabindex="-1"></a>        forced_results[p] <span class="op">=</span> forced_for_p</span>
+<span id="cb7-221"><a href="#cb7-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-222"><a href="#cb7-222" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> standard_results, forced_results</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <section id="visualisation-and-reporting-functions" class="level3">
 <h3 class="anchored" data-anchor-id="visualisation-and-reporting-functions">Visualisation and reporting functions</h3>
@@ -814,8 +911,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>table_type</code>: A string indicating the type of table to generate (“summary” or “prior”).</li>
 </ul></li>
 <li><code>plot_trial_by_trial_performance</code>: Creates a plot visualizing the traditional accuracy of AI models across trials for different prior probabilities.</li>
+<li><code>display_forced_choice_results</code>: Displays the forced choice results in a formatted table.</li>
 </ul>
-<div id="6a9de62d" class="cell" data-execution_count="8">
+<div id="1053bf2e" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualisation Functions</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_performance_summary(results: Dict[<span class="bu">float</span>, Dict[<span class="bu">str</span>, Dict[<span class="bu">str</span>, <span class="bu">float</span>]]], config: SimulationConfig) <span class="op">-&gt;</span> plt.Figure:</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
@@ -1440,16 +1540,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-622"><a href="#cb8-622" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> p <span class="kw">in</span> config.p:</span>
 <span id="cb8-623"><a href="#cb8-623" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Prior p = </span><span class="sc">{</span>p<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb8-624"><a href="#cb8-624" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ai_type <span class="kw">in</span> config.ai_types:</span>
-<span id="cb8-625"><a href="#cb8-625" aria-hidden="true" tabindex="-1"></a>            accuracy <span class="op">=</span> forced_results[p][ai_type][<span class="st">'ex_ante'</span>]  <span class="co"># Match key structure</span></span>
-<span id="cb8-626"><a href="#cb8-626" aria-hidden="true" tabindex="-1"></a>            pct_included <span class="op">=</span> forced_results[p][ai_type][<span class="st">'pct_included'</span>]</span>
-<span id="cb8-627"><a href="#cb8-627" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb8-628"><a href="#cb8-628" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> np.isnan(accuracy):</span>
-<span id="cb8-629"><a href="#cb8-629" aria-hidden="true" tabindex="-1"></a>                accuracy_str <span class="op">=</span> <span class="st">"N/A (no non-tie cases)"</span></span>
-<span id="cb8-630"><a href="#cb8-630" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
-<span id="cb8-631"><a href="#cb8-631" aria-hidden="true" tabindex="-1"></a>                accuracy_str <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>accuracy<span class="sc">:.4f}</span><span class="ss"> (using </span><span class="sc">{</span>pct_included<span class="sc">:.1f}</span><span class="ss">% of trials)"</span></span>
-<span id="cb8-632"><a href="#cb8-632" aria-hidden="true" tabindex="-1"></a>                </span>
-<span id="cb8-633"><a href="#cb8-633" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"  </span><span class="sc">{</span>ai_type<span class="sc">:15s}</span><span class="ss"> =&gt; accuracy = </span><span class="sc">{</span>accuracy_str<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb8-625"><a href="#cb8-625" aria-hidden="true" tabindex="-1"></a>            ex_ante <span class="op">=</span> forced_results[p][ai_type][<span class="st">'ex_ante'</span>]</span>
+<span id="cb8-626"><a href="#cb8-626" aria-hidden="true" tabindex="-1"></a>            ex_post_type <span class="op">=</span> forced_results[p][ai_type][<span class="st">'ex_post_type'</span>]</span>
+<span id="cb8-627"><a href="#cb8-627" aria-hidden="true" tabindex="-1"></a>            ex_post_payoff <span class="op">=</span> forced_results[p][ai_type][<span class="st">'ex_post_payoff'</span>]</span>
+<span id="cb8-628"><a href="#cb8-628" aria-hidden="true" tabindex="-1"></a>            pct_included <span class="op">=</span> forced_results[p][ai_type][<span class="st">'pct_included'</span>]</span>
+<span id="cb8-629"><a href="#cb8-629" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb8-630"><a href="#cb8-630" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> np.isnan(ex_ante):</span>
+<span id="cb8-631"><a href="#cb8-631" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"  </span><span class="sc">{</span>ai_type<span class="sc">:15s}</span><span class="ss"> =&gt; N/A (no non-tie cases)"</span>)</span>
+<span id="cb8-632"><a href="#cb8-632" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb8-633"><a href="#cb8-633" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"  </span><span class="sc">{</span>ai_type<span class="sc">:15s}</span><span class="ss"> =&gt; ex-ante=</span><span class="sc">{</span>ex_ante<span class="sc">:.4f}</span><span class="ss">, ex-post-type=</span><span class="sc">{</span>ex_post_type<span class="sc">:.4f}</span><span class="ss">, ex-post-payoff=</span><span class="sc">{</span>ex_post_payoff<span class="sc">:.4f}</span><span class="ss"> (using </span><span class="sc">{</span>pct_included<span class="sc">:.1f}</span><span class="ss">% of trials)"</span>)</span>
 <span id="cb8-634"><a href="#cb8-634" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 </section>
 <section id="main-execution-function" class="level3">
@@ -1461,7 +1562,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>It performs detailed trial-by-trial analysis if enabled.</li>
 <li>It returns all results in a dictionary.</li>
 </ul>
-<div id="f07e4533" class="cell" data-execution_count="9">
+<div id="cfc5bd3b" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Main Execution Function</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> display_trial_accuracy_charts(trial_df: pd.DataFrame, config: SimulationConfig) <span class="op">-&gt;</span> plt.Figure:</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
@@ -1511,17 +1614,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run analytical solution with unified format if requested</span></span>
 <span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>    analytical_results <span class="op">=</span> <span class="va">None</span></span>
-<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> run_analytical:</span>
-<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Calculating analytical solution..."</span>)</span>
-<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>        analytical_results <span class="op">=</span> run_all_measures(config)</span>
-<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Return all results</span></span>
-<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
-<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>        <span class="st">'standard'</span>: standard_results,</span>
-<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>        <span class="st">'forced'</span>: forced_results,</span>
-<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>        <span class="st">'analytical'</span>: analytical_results,</span>
-<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>        <span class="st">'trial_df'</span>: trial_df</span>
-<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>    analytical_forced_results <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> run_analytical:</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Calculating analytical solution..."</span>)</span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>        analytical_results, analytical_forced_results <span class="op">=</span> run_all_measures(config)</span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Return all results</span></span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>        <span class="st">'standard'</span>: standard_results,</span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>        <span class="st">'forced'</span>: forced_results,</span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>        <span class="st">'analytical'</span>: analytical_results,</span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>        <span class="st">'analytical_forced'</span>: analytical_forced_results,</span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>        <span class="st">'trial_df'</span>: trial_df</span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 </section>
 <section id="diagnostic-and-testing-functions" class="level3">
@@ -1530,7 +1636,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li><strong><code>test_ai_recommendations</code>:</strong> Runs controlled scenarios to verify that the AI models are making expected recommendations in specific cases. This helps ensure the correctness of the simulation logic.</li>
 </ul>
-<div id="b9fa509f" class="cell" data-execution_count="10">
+<div id="6b2b2955" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostic and Testing Functions</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_ai_recommendations(config: SimulationConfig) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
@@ -1572,6 +1680,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>        expected_return <span class="op">=</span> calculate_expected_return(posterior, config)</span>
 <span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>        recommendation <span class="op">=</span> get_ai_recommendation(<span class="st">'naiveprior'</span>, <span class="fl">0.5</span>, current_outcomes, trial<span class="op">-</span><span class="dv">1</span>, config)</span>
 <span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Trial </span><span class="sc">{</span>trial<span class="sc">}</span><span class="ss">: High=</span><span class="sc">{</span>nH<span class="sc">}</span><span class="ss">, Low=</span><span class="sc">{</span>nL<span class="sc">}</span><span class="ss">, Posterior=</span><span class="sc">{</span>posterior<span class="sc">:.4f}</span><span class="ss">, E[Return]=</span><span class="sc">{</span>expected_return<span class="sc">:.4f}</span><span class="ss">, Recommendation=</span><span class="sc">{</span>recommendation<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 </section>
 <section id="execution-code" class="level3">
@@ -1581,7 +1690,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>It calls the <code>run_analysis</code> function with desired parameters.</li>
 <li>It displays the performance summary, performance by prior probability, and performance across trials using the visualization functions defined earlier.</li>
 </ul>
-<div id="af6ab2ff" class="cell" data-execution_count="11">
+<div id="721a7885" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main(config: SimulationConfig <span class="op">=</span> DEFAULT_CONFIG,</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>         num_simulations_override: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>,</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>         display_results: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>,</span>
@@ -1593,68 +1704,82 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">        config: Simulation configuration parameters</span></span>
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">        num_simulations_override: Optional override for number of simulations</span></span>
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">        display_results: Whether to display charts and tables</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">        Tuple of (config, results)</span></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create a copy of the config if we need to override num_simulations</span></span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> num_simulations_override <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Since SimulationConfig is frozen, we need to create a new instance</span></span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>        config <span class="op">=</span> SimulationConfig(</span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>            p<span class="op">=</span>config.p,</span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>            q<span class="op">=</span>config.q,</span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>            high_payoff<span class="op">=</span>config.high_payoff,</span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>            low_payoff<span class="op">=</span>config.low_payoff,</span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>            bond_payoff<span class="op">=</span>config.bond_payoff,</span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>            num_trials<span class="op">=</span>config.num_trials,</span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>            num_simulations<span class="op">=</span>num_simulations_override,</span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>            ai_types<span class="op">=</span>config.ai_types,</span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>            beta<span class="op">=</span>config.beta</span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run the analysis with the provided config</span></span>
-<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> run_analysis(config, num_simulations_to_run<span class="op">=</span><span class="va">None</span>, run_analytical<span class="op">=</span>run_analytical)</span>
-<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Only display results if requested</span></span>
-<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> display_results:</span>
-<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ===== STANDARD RESULTS SECTION =====</span></span>
-<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">========== STANDARD RESULTS =========="</span>)</span>
-<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Based on Monte Carlo simulation with </span><span class="sc">{</span>config<span class="sc">.</span>num_simulations<span class="sc">}</span><span class="ss"> iterations"</span>)</span>
-<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Standard Results Table:"</span>)</span>
-<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>        display_results_table(results[<span class="st">'standard'</span>], config)</span>
-<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Show simulation performance visualizations</span></span>
-<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">STANDARD PERFORMANCE BY PRIOR PROBABILITY"</span>)</span>
-<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>        prior_comparison <span class="op">=</span> plot_performance_by_prior(results[<span class="st">'standard'</span>], config)</span>
-<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>        plt.show()</span>
-<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Show performance across trials</span></span>
-<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>        trial_charts <span class="op">=</span> display_trial_accuracy_charts(results[<span class="st">'trial_df'</span>], config)</span>
-<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ===== FORCED CHOICE SECTION =====</span></span>
-<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">========== FORCED CHOICE RESULTS =========="</span>)</span>
-<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Based on Monte Carlo simulation with </span><span class="sc">{</span>config<span class="sc">.</span>num_simulations<span class="sc">}</span><span class="ss"> iterations"</span>)</span>
-<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"(Excluding cases where EV(share) = bond payoff exactly)"</span>)</span>
-<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>        display_forced_choice_results(results[<span class="st">'forced'</span>], config)</span>
-<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Use the existing plotting function for forced choice</span></span>
-<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">FORCED CHOICE ACCURACY BY PRIOR PROBABILITY"</span>)</span>
-<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a>        forced_chart <span class="op">=</span> plot_performance_by_prior(results[<span class="st">'forced'</span>], config)</span>
-<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a>        plt.show()</span>
-<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ===== ANALYTICAL RESULTS SECTION =====</span></span>
-<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> results[<span class="st">'analytical'</span>]:</span>
-<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">========== ANALYTICAL RESULTS =========="</span>)</span>
-<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"Exact mathematical solution for all possible sequences"</span>)</span>
-<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Analytical Results Table:"</span>)</span>
-<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a>            display_results_table(results[<span class="st">'analytical'</span>], config)</span>
-<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Display analytical performance by prior probability</span></span>
-<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">ANALYTICAL PERFORMANCE BY PRIOR PROBABILITY"</span>)</span>
-<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a>            analytical_prior <span class="op">=</span> plot_analytical_performance_by_prior(results[<span class="st">'analytical'</span>], config)</span>
-<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a>            plt.show()</span>
-<span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> config, results</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">        run_analytical: Whether to run analytical solution</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">        Tuple of (config, results)</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create a copy of the config if we need to override num_simulations</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> num_simulations_override <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Since SimulationConfig is frozen, we need to create a new instance</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>        config <span class="op">=</span> SimulationConfig(</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>            p<span class="op">=</span>config.p,</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>            q<span class="op">=</span>config.q,</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>            high_payoff<span class="op">=</span>config.high_payoff,</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>            low_payoff<span class="op">=</span>config.low_payoff,</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>            bond_payoff<span class="op">=</span>config.bond_payoff,</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>            num_trials<span class="op">=</span>config.num_trials,</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>            num_simulations<span class="op">=</span>num_simulations_override,</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>            ai_types<span class="op">=</span>config.ai_types,</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>            beta<span class="op">=</span>config.beta</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run the analysis with the provided config</span></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> run_analysis(config, num_simulations_to_run<span class="op">=</span><span class="va">None</span>, run_analytical<span class="op">=</span>run_analytical)</span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Only display results if requested</span></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> display_results:</span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ===== STANDARD RESULTS SECTION =====</span></span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">========== STANDARD RESULTS =========="</span>)</span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Based on Monte Carlo simulation with </span><span class="sc">{</span>config<span class="sc">.</span>num_simulations<span class="sc">}</span><span class="ss"> iterations"</span>)</span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Standard Results Table:"</span>)</span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>        display_results_table(results[<span class="st">'standard'</span>], config)</span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Show simulation performance visualizations</span></span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">STANDARD PERFORMANCE BY PRIOR PROBABILITY"</span>)</span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>        prior_comparison <span class="op">=</span> plot_performance_by_prior(results[<span class="st">'standard'</span>], config)</span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>        plt.show()</span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Show performance across trials</span></span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>        trial_charts <span class="op">=</span> display_trial_accuracy_charts(results[<span class="st">'trial_df'</span>], config)</span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ===== FORCED CHOICE SECTION =====</span></span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">========== FORCED CHOICE RESULTS =========="</span>)</span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Based on Monte Carlo simulation with </span><span class="sc">{</span>config<span class="sc">.</span>num_simulations<span class="sc">}</span><span class="ss"> iterations"</span>)</span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"(Excluding cases where EV(share) = bond payoff exactly)"</span>)</span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>        display_forced_choice_results(results[<span class="st">'forced'</span>], config)</span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Use the existing plotting function for forced choice</span></span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">FORCED CHOICE ACCURACY BY PRIOR PROBABILITY"</span>)</span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a>        forced_chart <span class="op">=</span> plot_performance_by_prior(results[<span class="st">'forced'</span>], config)</span>
+<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a>        plt.show()</span>
+<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ===== ANALYTICAL RESULTS SECTION =====</span></span>
+<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> results[<span class="st">'analytical'</span>]:</span>
+<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">========== ANALYTICAL RESULTS =========="</span>)</span>
+<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"Exact mathematical solution for all possible sequences"</span>)</span>
+<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Analytical Results Table:"</span>)</span>
+<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a>            display_results_table(results[<span class="st">'analytical'</span>], config)</span>
+<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Display analytical performance by prior probability</span></span>
+<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">ANALYTICAL PERFORMANCE BY PRIOR PROBABILITY"</span>)</span>
+<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a>            analytical_prior <span class="op">=</span> plot_analytical_performance_by_prior(results[<span class="st">'analytical'</span>], config)</span>
+<span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a>            plt.show()</span>
+<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a>            <span class="co"># ===== ANALYTICAL FORCED CHOICE SECTION =====</span></span>
+<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> results[<span class="st">'analytical_forced'</span>]:</span>
+<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">========== ANALYTICAL FORCED CHOICE RESULTS =========="</span>)</span>
+<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">"Exact mathematical solution excluding cases where EV(share) = bond payoff exactly"</span>)</span>
+<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Analytical Forced Choice Results Table:"</span>)</span>
+<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a>                display_forced_choice_results(results[<span class="st">'analytical_forced'</span>], config)</span>
+<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Display analytical forced choice performance by prior probability</span></span>
+<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">ANALYTICAL FORCED CHOICE PERFORMANCE BY PRIOR PROBABILITY"</span>)</span>
+<span id="cb11-83"><a href="#cb11-83" aria-hidden="true" tabindex="-1"></a>                analytical_forced_prior <span class="op">=</span> plot_performance_by_prior(results[<span class="st">'analytical_forced'</span>], config)</span>
+<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a>                plt.show()</span>
+<span id="cb11-85"><a href="#cb11-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-86"><a href="#cb11-86" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> config, results</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 </section>
 <section id="run-the-analysis" class="level3">
@@ -1665,7 +1790,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>The <code>run_analysis</code> function encapsulates the entire simulation process, including generating outcomes, calculating AI recommendations, and aggregating results.</li>
 <li>The results of the analysis are stored in the <code>analysis_results</code> dictionary, which will be used for further processing and visualization.</li>
 </ul>
-<div id="e7c43746" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:1000}}" data-execution_count="12">
+<div id="30e694e0" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:1000}}" data-execution_count="12">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the analysis</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">"__main__"</span>:</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run with default configuration</span></span>
@@ -1688,6 +1815,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Or just override the number of simulations:</span></span>
 <span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># results = main(num_simulations_override=500)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Testing AI recommendations in controlled scenarios...
 
@@ -1776,25 +1904,25 @@ Based on Monte Carlo simulation with 10000 iterations
 
 ===== FORCED CHOICE ACCURACY (EXCLUDING EV TIES) =====
 Prior p = 0.2
-  perfect         =&gt; accuracy = 1.0000 (using 100.0% of trials)
-  shortsighted    =&gt; accuracy = 0.8505 (using 100.0% of trials)
-  earlycommitment =&gt; accuracy = 0.8505 (using 100.0% of trials)
-  conservative    =&gt; accuracy = 0.9188 (using 100.0% of trials)
-  naiveprior      =&gt; accuracy = 0.8244 (using 100.0% of trials)
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8812, ex-post-payoff=0.6531 (using 100.0% of trials)
+  shortsighted    =&gt; ex-ante=0.8505, ex-post-type=0.7958, ex-post-payoff=0.6184 (using 100.0% of trials)
+  earlycommitment =&gt; ex-ante=0.8505, ex-post-type=0.7958, ex-post-payoff=0.6184 (using 100.0% of trials)
+  conservative    =&gt; ex-ante=0.9188, ex-post-type=0.8556, ex-post-payoff=0.6431 (using 100.0% of trials)
+  naiveprior      =&gt; ex-ante=0.8244, ex-post-type=0.8332, ex-post-payoff=0.6341 (using 100.0% of trials)
 
 Prior p = 0.5
-  perfect         =&gt; accuracy = 1.0000 (using 83.2% of trials)
-  shortsighted    =&gt; accuracy = 0.7871 (using 83.2% of trials)
-  earlycommitment =&gt; accuracy = 0.7872 (using 83.2% of trials)
-  conservative    =&gt; accuracy = 1.0000 (using 83.2% of trials)
-  naiveprior      =&gt; accuracy = 1.0000 (using 83.2% of trials)
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8748, ex-post-payoff=0.6507 (using 83.2% of trials)
+  shortsighted    =&gt; ex-ante=0.7871, ex-post-type=0.7235, ex-post-payoff=0.5897 (using 83.2% of trials)
+  earlycommitment =&gt; ex-ante=0.7872, ex-post-type=0.7187, ex-post-payoff=0.5879 (using 83.2% of trials)
+  conservative    =&gt; ex-ante=1.0000, ex-post-type=0.8748, ex-post-payoff=0.6507 (using 83.2% of trials)
+  naiveprior      =&gt; ex-ante=1.0000, ex-post-type=0.8748, ex-post-payoff=0.6507 (using 83.2% of trials)
 
 Prior p = 0.8
-  perfect         =&gt; accuracy = 1.0000 (using 100.0% of trials)
-  shortsighted    =&gt; accuracy = 0.8560 (using 100.0% of trials)
-  earlycommitment =&gt; accuracy = 0.8560 (using 100.0% of trials)
-  conservative    =&gt; accuracy = 0.9223 (using 100.0% of trials)
-  naiveprior      =&gt; accuracy = 0.8284 (using 100.0% of trials)
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8858, ex-post-payoff=0.6562 (using 100.0% of trials)
+  shortsighted    =&gt; ex-ante=0.8560, ex-post-type=0.8066, ex-post-payoff=0.6236 (using 100.0% of trials)
+  earlycommitment =&gt; ex-ante=0.8560, ex-post-type=0.8066, ex-post-payoff=0.6236 (using 100.0% of trials)
+  conservative    =&gt; ex-ante=0.9223, ex-post-type=0.8645, ex-post-payoff=0.6468 (using 100.0% of trials)
+  naiveprior      =&gt; ex-ante=0.8284, ex-post-type=0.8343, ex-post-payoff=0.6352 (using 100.0% of trials)
 
 
 FORCED CHOICE ACCURACY BY PRIOR PROBABILITY</code></pre>
@@ -1842,6 +1970,45 @@ ANALYTICAL PERFORMANCE BY PRIOR PROBABILITY</code></pre>
 <div>
 <figure class="figure">
 <p><img src="cognitive_forcing_0.4_files/figure-html/cell-13-output-8.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+========== ANALYTICAL FORCED CHOICE RESULTS ==========
+Exact mathematical solution excluding cases where EV(share) = bond payoff exactly
+
+Analytical Forced Choice Results Table:
+
+===== FORCED CHOICE ACCURACY (EXCLUDING EV TIES) =====
+Prior p = 0.2
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8827, ex-post-payoff=0.6531 (using 100.0% of trials)
+  shortsighted    =&gt; ex-ante=0.8531, ex-post-type=0.8000, ex-post-payoff=0.6200 (using 100.0% of trials)
+  earlycommitment =&gt; ex-ante=0.8531, ex-post-type=0.8000, ex-post-payoff=0.6200 (using 100.0% of trials)
+  conservative    =&gt; ex-ante=0.9204, ex-post-type=0.8593, ex-post-payoff=0.6437 (using 100.0% of trials)
+  naiveprior      =&gt; ex-ante=0.8259, ex-post-type=0.8335, ex-post-payoff=0.6334 (using 100.0% of trials)
+
+Prior p = 0.5
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8733, ex-post-payoff=0.6493 (using 83.2% of trials)
+  shortsighted    =&gt; ex-ante=0.7862, ex-post-type=0.7220, ex-post-payoff=0.5888 (using 83.2% of trials)
+  earlycommitment =&gt; ex-ante=0.7862, ex-post-type=0.7220, ex-post-payoff=0.5888 (using 83.2% of trials)
+  conservative    =&gt; ex-ante=1.0000, ex-post-type=0.8733, ex-post-payoff=0.6493 (using 83.2% of trials)
+  naiveprior      =&gt; ex-ante=1.0000, ex-post-type=0.8733, ex-post-payoff=0.6493 (using 83.2% of trials)
+
+Prior p = 0.8
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8827, ex-post-payoff=0.6531 (using 100.0% of trials)
+  shortsighted    =&gt; ex-ante=0.8531, ex-post-type=0.8000, ex-post-payoff=0.6200 (using 100.0% of trials)
+  earlycommitment =&gt; ex-ante=0.8531, ex-post-type=0.8000, ex-post-payoff=0.6200 (using 100.0% of trials)
+  conservative    =&gt; ex-ante=0.9204, ex-post-type=0.8593, ex-post-payoff=0.6437 (using 100.0% of trials)
+  naiveprior      =&gt; ex-ante=0.8259, ex-post-type=0.8335, ex-post-payoff=0.6334 (using 100.0% of trials)
+
+
+ANALYTICAL FORCED CHOICE PERFORMANCE BY PRIOR PROBABILITY</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="cognitive_forcing_0.4_files/figure-html/cell-13-output-10.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
