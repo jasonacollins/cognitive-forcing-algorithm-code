@@ -1,0 +1,197 @@
+---
+code-fold: true
+freeze: true
+format: html
+---
+
+## Analysis of Germann and Merkle data
+
+### Setup
+
+This analysis requires the following R packages: haven, dplyr, and purrr. If you haven't installed them yet, you can do so by running the following command in your R console:
+
+```{r}
+# Install required packages
+# install.packages(c("haven", "dplyr", "purrr"))
+```
+
+The data is in Stata format, so we use the `haven` package to read it. We also use `dplyr` for data manipulation and `purrr` for some functional programming tasks.
+
+```{r warning=FALSE, message=FALSE}
+# Load required libraries
+library(haven)
+library(dplyr)
+library(purrr)
+```
+
+We then load the data using the `read_dta` function from the `haven` package. The data is stored in a folder called `data` in the current working directory.
+
+### Check data
+
+We view the first few rows of the data and column names to understand its structure and contents.
+
+```{r}
+# Load the data
+data_path <- file.path(getwd(), "data", "germann-and-merkle-2023.dta")
+df <- read_dta(data_path)
+head(df)
+names(df)
+
+```
+
+### Data Preparation
+
+We plan to understand the accuracy of the fund manager decisions in this dataset as this provides us an indication of human accuracy. The accuracy may be higher than the average human as fund managers are those who scored higher in the test.
+
+First we create a dataset comprising only the fund managers and fund manager decisions.
+
+```{r}
+# Create a dataset for fund manager decisions
+
+fund_manager_data <- df %>%
+  filter(fund_manager == 1)
+
+# Check number of fund managers (number of independent 'id' values)
+num_fund_managers <- fund_manager_data %>% # Use the already filtered fund_manager_data
+  summarise(n = n_distinct(id)) %>%
+  pull(n)
+
+# Check number of fund manager decisions
+num_fund_manager_decisions <- nrow(fund_manager_data)
+
+```
+
+The dataset includes `r num_fund_managers` fund managers, with a total of `r num_fund_manager_decisions` decisions. This corresponds to `r num_fund_manager_decisions / num_fund_managers` decisions per manager, matching the description in the paper.
+
+Many decisions are ambiguous, where the algorithm makes a random choice due to equal expected returns. We will calculate accuracy measures both with and without these ambiguous cases.
+
+To do this, we first identify the ambiguous cases in the dataset. We do this by identifying the probability determined by a Bayesian model for each trial within a block. At the beginning of a block, the prior probability is set to 0.5. Over the course of the trial, the probability is updated based on the observed outcomes.
+
+We create a new column with the Bayesian model probability for each trial.
+
+```{r}
+# Define Bayesian model parameters (Probabilities given in the problem)
+P_HIGH_GIVEN_GOOD <- 0.7
+P_LOW_GIVEN_GOOD  <- 0.3 # Which is 1 - P_HIGH_GIVEN_GOOD
+P_HIGH_GIVEN_BAD  <- 0.3 # Assuming symmetry as in the problem, this is P_LOW_GIVEN_GOOD
+P_LOW_GIVEN_BAD   <- 0.7 # And this is P_HIGH_GIVEN_GOOD
+
+# Function to calculate Bayesian probability step for purrr::accumulate
+calculate_bayes_probability_step <- function(current_prior, current_outcome_payoff) {
+  # Determine likelihoods based on the current outcome using predefined constants
+  likelihood_good <- if (current_outcome_payoff == 5) P_HIGH_GIVEN_GOOD else if (current_outcome_payoff == 1) P_LOW_GIVEN_GOOD else NA
+  likelihood_bad  <- if (current_outcome_payoff == 5) P_HIGH_GIVEN_BAD  else if (current_outcome_payoff == 1) P_LOW_GIVEN_BAD  else NA
+
+  if (is.na(likelihood_good) || is.na(likelihood_bad) || is.na(current_prior)) { # Handle NA outcomes or priors
+      return(NA_real_)
+  }
+
+  # Apply Bayes' rule
+  numerator <- likelihood_good * current_prior
+  denominator <- (likelihood_good * current_prior) + (likelihood_bad * (1 - current_prior))
+  
+  if (denominator == 0) return(current_prior) # Avoid division by zero, maintain prior
+  return(numerator / denominator)
+}
+
+# Sort the data and calculate bayes_prior efficiently using dplyr and purrr
+fund_manager_data <- fund_manager_data %>% 
+  arrange(id, block, trial) %>%
+  group_by(id, block) %>%
+  mutate(
+    bayes_prior = lag(accumulate(payoff_stock, calculate_bayes_probability_step, .init = 0.5)[-1], default = 0.5)
+  ) %>%
+  ungroup() # Always good practice to ungroup after group operations
+```
+
+We can check the prior has been added by viewing the head of the data frame (limited to a subset of columns).
+
+```{r}
+#show head of data frome with block, trial and new columns
+head(fund_manager_data) %>%
+  select(id, block, trial, bayes_prior)
+
+```
+
+We now create a new column to indicate whether the case is ambiguous or not. The ambiguous cases are those where the algorithm's prior probability is 0.5, indicating equal expected returns for both stocks. We will use this to filter the data later.
+
+```{r}
+# Add a column to indicate if the case is ambiguous
+fund_manager_data <- fund_manager_data %>%
+  mutate(is_ambiguous = (bayes_prior == 0.5))
+
+# Report counts
+num_ambiguous_cases <- sum(fund_manager_data$is_ambiguous)
+num_non_ambiguous_cases <- sum(!fund_manager_data$is_ambiguous)
+
+# You can also view the head to check
+# head(fund_manager_data %>% select(id, block, trial, bayes_prior, is_ambiguous))
+```
+
+There are `r num_ambiguous_cases` ambiguous cases and `r num_non_ambiguous_cases` non-ambiguous cases in the dataset.
+
+### Calculate fund manager accuracy
+
+We will now calculate accuracy for the non-ambiguous cases. The `asset_human` variable indicates the fund manager's decision, while the `asset_algo` variable indicates the algorithm's decision. We will compare these two variables to determine the number of correct decisions made by the fund manager.
+
+The following tables summarize the accuracy of fund managers.
+
+```{r}
+# Helper function to add a total row and format columns
+add_total_row_and_format <- function(df) {
+  df_with_total <- df %>%
+    bind_rows(
+      summarise(., # Use . to refer to the input df
+                id = "Total",
+                total_decisions = sum(total_decisions, na.rm = TRUE),
+                correct_decisions = sum(correct_decisions, na.rm = TRUE),
+                accuracy = ifelse(sum(total_decisions, na.rm = TRUE) > 0,
+                                  (sum(correct_decisions, na.rm = TRUE) / sum(total_decisions, na.rm = TRUE)) * 100, NA))
+    ) %>%
+    select(id, correct_decisions, total_decisions, accuracy)
+  return(df_with_total)
+}
+
+# Calculate accuracy for each fund manager excluding ambiguous cases (Base data)
+fund_manager_accuracy_by_id_non_ambiguous_base <- fund_manager_data %>%
+  filter(!is_ambiguous) %>% # Filter out ambiguous cases
+  group_by(id) %>%
+  summarise(
+    total_decisions = n(),
+    correct_decisions = sum(asset_human == asset_algo),
+    accuracy = ifelse(total_decisions > 0, (correct_decisions / total_decisions) * 100, NA),
+    .groups = 'drop'
+  ) %>%
+  arrange(desc(accuracy)) %>%
+  mutate(id = as.character(id))
+
+# Calculate accuracy for each fund manager including ambiguous cases (Base data)
+# Ambiguous cases are counted as correct.
+fund_manager_accuracy_by_id_ambiguous_base <- fund_manager_data %>%
+  group_by(id) %>%
+  summarise(
+    total_decisions = n(), # Total decisions for this fund manager
+    # Correct decisions:
+    # - If a case is ambiguous, it's counted as correct.
+    # - If a case is not ambiguous, it's correct if asset_human == asset_algo.
+    correct_decisions = sum( is_ambiguous | (asset_human == asset_algo & !is_ambiguous) ),
+    accuracy = ifelse(total_decisions > 0, (correct_decisions / total_decisions) * 100, NA),
+    .groups = 'drop'
+  ) %>%
+  mutate(id = as.character(id)) %>% # Ensure id is character for the helper function
+  arrange(desc(accuracy))
+
+# Now, prepare the tables for printing using the helper function
+fund_manager_accuracy_by_id_non_ambiguous_print <- add_total_row_and_format(fund_manager_accuracy_by_id_non_ambiguous_base)
+fund_manager_accuracy_by_id_ambiguous_print <- add_total_row_and_format(fund_manager_accuracy_by_id_ambiguous_base)
+
+# Print results for non-ambiguous cases
+cat("Fund manager accuracy by id (excluding ambiguous cases):\n")
+print(fund_manager_accuracy_by_id_non_ambiguous_print)
+
+# Print results for cases including ambiguous ones
+cat("Fund manager accuracy by id (including ambiguous cases):\n")
+print(fund_manager_accuracy_by_id_ambiguous_print)
+
+```
+

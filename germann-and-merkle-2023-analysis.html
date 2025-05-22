@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.23">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>germann-and-merkle-2023-analysis</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="germann-and-merkle-2023-analysis_files/libs/clipboard/clipboard.min.js"></script>
+<script src="germann-and-merkle-2023-analysis_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="germann-and-merkle-2023-analysis_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="germann-and-merkle-2023-analysis_files/libs/quarto-html/popper.min.js"></script>
+<script src="germann-and-merkle-2023-analysis_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="germann-and-merkle-2023-analysis_files/libs/quarto-html/anchor.min.js"></script>
+<link href="germann-and-merkle-2023-analysis_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="germann-and-merkle-2023-analysis_files/libs/quarto-html/quarto-syntax-highlighting-226bd0f977fa82dfae4534cac220d79a.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="germann-and-merkle-2023-analysis_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="germann-and-merkle-2023-analysis_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="germann-and-merkle-2023-analysis_files/libs/bootstrap/bootstrap-be9206a58a27969b3ea3001da8f26fef.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="analysis-of-germann-and-merkle-data" class="level2">
+<h2 class="anchored" data-anchor-id="analysis-of-germann-and-merkle-data">Analysis of Germann and Merkle data</h2>
+<section id="setup" class="level3">
+<h3 class="anchored" data-anchor-id="setup">Setup</h3>
+<p>This analysis requires the following R packages: haven, dplyr, and purrr. If you haven’t installed them yet, you can do so by running the following command in your R console:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install required packages</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages(c("haven", "dplyr", "purrr"))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The data is in Stata format, so we use the <code>haven</code> package to read it. We also use <code>dplyr</code> for data manipulation and <code>purrr</code> for some functional programming tasks.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load required libraries</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>We then load the data using the <code>read_dta</code> function from the <code>haven</code> package. The data is stored in a folder called <code>data</code> in the current working directory.</p>
+</section>
+<section id="check-data" class="level3">
+<h3 class="anchored" data-anchor-id="check-data">Check data</h3>
+<p>We view the first few rows of the data and column names to understand its structure and contents.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>data_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">getwd</span>(), <span class="st">"data"</span>, <span class="st">"germann-and-merkle-2023.dta"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(data_path)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 83
+  exactround asset_fund_manager payoff_human asset_human payoff_algo
+       &lt;dbl&gt;              &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+1         11                 NA            3           0           3
+2         12                 NA            3           0           3
+3         13                 NA            1           1           1
+4         14                 NA            1           1           3
+5         15                 NA            3           0           3
+6         16                 NA            5           1           3
+# ℹ 78 more variables: payoff_stock &lt;dbl&gt;, algo_random &lt;dbl&gt;, block &lt;dbl&gt;,
+#   finlit_q1 &lt;dbl&gt;, finlit_q2 &lt;dbl&gt;, finlit_q3 &lt;dbl&gt;, finlit_q4 &lt;dbl&gt;,
+#   finlit_q5 &lt;dbl&gt;, finlit_q6 &lt;dbl&gt;, finlit_q7 &lt;dbl&gt;, finlit_q8 &lt;dbl&gt;,
+#   time_quiz &lt;dbl&gt;, numeracy_answer1 &lt;dbl&gt;, numeracy_answer2 &lt;dbl&gt;,
+#   numeracy_answer3 &lt;dbl&gt;, numeracy_answer4 &lt;dbl&gt;, numeracy_q1 &lt;dbl&gt;,
+#   numeracy_q2 &lt;dbl&gt;, numeracy_q3 &lt;dbl&gt;, numeracy_q4 &lt;dbl&gt;, score &lt;dbl&gt;,
+#   rank &lt;dbl&gt;, rank_adj &lt;dbl&gt;, fund_manager &lt;dbl&gt;, choiceblock &lt;dbl&gt;, …</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "exactround"             "asset_fund_manager"     "payoff_human"          
+ [4] "asset_human"            "payoff_algo"            "payoff_stock"          
+ [7] "algo_random"            "block"                  "finlit_q1"             
+[10] "finlit_q2"              "finlit_q3"              "finlit_q4"             
+[13] "finlit_q5"              "finlit_q6"              "finlit_q7"             
+[16] "finlit_q8"              "time_quiz"              "numeracy_answer1"      
+[19] "numeracy_answer2"       "numeracy_answer3"       "numeracy_answer4"      
+[22] "numeracy_q1"            "numeracy_q2"            "numeracy_q3"           
+[25] "numeracy_q4"            "score"                  "rank"                  
+[28] "rank_adj"               "fund_manager"           "choiceblock"           
+[31] "choice_algo_minus2"     "choice_algo_minus1"     "choice_equal_fee"      
+[34] "choice_algo_plus1"      "choice_algo_plus2"      "random_cost_drawn"     
+[37] "payment_block_net"      "paymentblock_gross"     "costblock"             
+[40] "block_drawn_for_payoff" "final_payoff"           "motivation_verbal"     
+[43] "feedback_verbal"        "state"                  "payoff_bond"           
+[46] "session"                "id"                     "Q1_Fund"               
+[49] "Q1_Alg"                 "Q1_Random"              "Q2_Fund"               
+[52] "Q2_Alg"                 "Q2_Random"              "Q3_Fund"               
+[55] "Q3_Alg"                 "Q3_Random"              "Q4_Fund"               
+[58] "Q4_Alg"                 "Q4_Random"              "Q5_Fund"               
+[61] "Q5_Alg"                 "Q5_Random"              "Q6_Fund"               
+[64] "Q6_Alg"                 "Q6_Random"              "Q7_Fund"               
+[67] "Q7_Alg"                 "Q7_Random"              "gender"                
+[70] "age"                    "investstocks"           "risk"                  
+[73] "trust"                  "econskill"              "return_beliefs"        
+[76] "learning"               "qualitative_data"       "data_aggregation"      
+[79] "data_weighting"         "outliers"               "competition_outgroup"  
+[82] "asset_algo"             "trial"                 </code></pre>
+</div>
+</div>
+</section>
+<section id="data-preparation" class="level3">
+<h3 class="anchored" data-anchor-id="data-preparation">Data Preparation</h3>
+<p>We plan to understand the accuracy of the fund manager decisions in this dataset as this provides us an indication of human accuracy. The accuracy may be higher than the average human as fund managers are those who scored higher in the test.</p>
+<p>First we create a dataset comprising only the fund managers and fund manager decisions.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a dataset for fund manager decisions</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>fund_manager_data <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(fund_manager <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Check number of fund managers (number of independent 'id' values)</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>num_fund_managers <span class="ot">&lt;-</span> fund_manager_data <span class="sc">%&gt;%</span> <span class="co"># Use the already filtered fund_manager_data</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n_distinct</span>(id)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(n)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Check number of fund manager decisions</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>num_fund_manager_decisions <span class="ot">&lt;-</span> <span class="fu">nrow</span>(fund_manager_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The dataset includes 12 fund managers, with a total of 720 decisions. This corresponds to 60 decisions per manager, matching the description in the paper.</p>
+<p>Many decisions are ambiguous, where the algorithm makes a random choice due to equal expected returns. We will calculate accuracy measures both with and without these ambiguous cases.</p>
+<p>To do this, we first identify the ambiguous cases in the dataset. We do this by identifying the probability determined by a Bayesian model for each trial within a block. At the beginning of a block, the prior probability is set to 0.5. Over the course of the trial, the probability is updated based on the observed outcomes.</p>
+<p>We create a new column with the Bayesian model probability for each trial.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define Bayesian model parameters (Probabilities given in the problem)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>P_HIGH_GIVEN_GOOD <span class="ot">&lt;-</span> <span class="fl">0.7</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>P_LOW_GIVEN_GOOD  <span class="ot">&lt;-</span> <span class="fl">0.3</span> <span class="co"># Which is 1 - P_HIGH_GIVEN_GOOD</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>P_HIGH_GIVEN_BAD  <span class="ot">&lt;-</span> <span class="fl">0.3</span> <span class="co"># Assuming symmetry as in the problem, this is P_LOW_GIVEN_GOOD</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>P_LOW_GIVEN_BAD   <span class="ot">&lt;-</span> <span class="fl">0.7</span> <span class="co"># And this is P_HIGH_GIVEN_GOOD</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to calculate Bayesian probability step for purrr::accumulate</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>calculate_bayes_probability_step <span class="ot">&lt;-</span> <span class="cf">function</span>(current_prior, current_outcome_payoff) {</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Determine likelihoods based on the current outcome using predefined constants</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  likelihood_good <span class="ot">&lt;-</span> <span class="cf">if</span> (current_outcome_payoff <span class="sc">==</span> <span class="dv">5</span>) P_HIGH_GIVEN_GOOD <span class="cf">else</span> <span class="cf">if</span> (current_outcome_payoff <span class="sc">==</span> <span class="dv">1</span>) P_LOW_GIVEN_GOOD <span class="cf">else</span> <span class="cn">NA</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  likelihood_bad  <span class="ot">&lt;-</span> <span class="cf">if</span> (current_outcome_payoff <span class="sc">==</span> <span class="dv">5</span>) P_HIGH_GIVEN_BAD  <span class="cf">else</span> <span class="cf">if</span> (current_outcome_payoff <span class="sc">==</span> <span class="dv">1</span>) P_LOW_GIVEN_BAD  <span class="cf">else</span> <span class="cn">NA</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.na</span>(likelihood_good) <span class="sc">||</span> <span class="fu">is.na</span>(likelihood_bad) <span class="sc">||</span> <span class="fu">is.na</span>(current_prior)) { <span class="co"># Handle NA outcomes or priors</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(<span class="cn">NA_real_</span>)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Apply Bayes' rule</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  numerator <span class="ot">&lt;-</span> likelihood_good <span class="sc">*</span> current_prior</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  denominator <span class="ot">&lt;-</span> (likelihood_good <span class="sc">*</span> current_prior) <span class="sc">+</span> (likelihood_bad <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> current_prior))</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (denominator <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(current_prior) <span class="co"># Avoid division by zero, maintain prior</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(numerator <span class="sc">/</span> denominator)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort the data and calculate bayes_prior efficiently using dplyr and purrr</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>fund_manager_data <span class="ot">&lt;-</span> fund_manager_data <span class="sc">%&gt;%</span> </span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(id, block, trial) <span class="sc">%&gt;%</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id, block) <span class="sc">%&gt;%</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">bayes_prior =</span> <span class="fu">lag</span>(<span class="fu">accumulate</span>(payoff_stock, calculate_bayes_probability_step, <span class="at">.init =</span> <span class="fl">0.5</span>)[<span class="sc">-</span><span class="dv">1</span>], <span class="at">default =</span> <span class="fl">0.5</span>)</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="co"># Always good practice to ungroup after group operations</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>We can check the prior has been added by viewing the head of the data frame (limited to a subset of columns).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#show head of data frome with block, trial and new columns</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fund_manager_data) <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, block, trial, bayes_prior)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 4
+     id block trial bayes_prior
+  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;       &lt;dbl&gt;
+1     3     1     1      0.5   
+2     3     1     2      0.3   
+3     3     1     3      0.5   
+4     3     1     4      0.3   
+5     3     1     5      0.155 
+6     3     1     6      0.0730</code></pre>
+</div>
+</div>
+<p>We now create a new column to indicate whether the case is ambiguous or not. The ambiguous cases are those where the algorithm’s prior probability is 0.5, indicating equal expected returns for both stocks. We will use this to filter the data later.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a column to indicate if the case is ambiguous</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>fund_manager_data <span class="ot">&lt;-</span> fund_manager_data <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">is_ambiguous =</span> (bayes_prior <span class="sc">==</span> <span class="fl">0.5</span>))</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Report counts</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>num_ambiguous_cases <span class="ot">&lt;-</span> <span class="fu">sum</span>(fund_manager_data<span class="sc">$</span>is_ambiguous)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>num_non_ambiguous_cases <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="sc">!</span>fund_manager_data<span class="sc">$</span>is_ambiguous)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># You can also view the head to check</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co"># head(fund_manager_data %&gt;% select(id, block, trial, bayes_prior, is_ambiguous))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>There are 153 ambiguous cases and 567 non-ambiguous cases in the dataset.</p>
+</section>
+<section id="calculate-fund-manager-accuracy" class="level3">
+<h3 class="anchored" data-anchor-id="calculate-fund-manager-accuracy">Calculate fund manager accuracy</h3>
+<p>We will now calculate accuracy for the non-ambiguous cases. The <code>asset_human</code> variable indicates the fund manager’s decision, while the <code>asset_algo</code> variable indicates the algorithm’s decision. We will compare these two variables to determine the number of correct decisions made by the fund manager.</p>
+<p>The following tables summarize the accuracy of fund managers.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Helper function to add a total row and format columns</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>add_total_row_and_format <span class="ot">&lt;-</span> <span class="cf">function</span>(df) {</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  df_with_total <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bind_rows</span>(</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">summarise</span>(., <span class="co"># Use . to refer to the input df</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">id =</span> <span class="st">"Total"</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">total_decisions =</span> <span class="fu">sum</span>(total_decisions, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">correct_decisions =</span> <span class="fu">sum</span>(correct_decisions, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">accuracy =</span> <span class="fu">ifelse</span>(<span class="fu">sum</span>(total_decisions, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">&gt;</span> <span class="dv">0</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>                                  (<span class="fu">sum</span>(correct_decisions, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">sum</span>(total_decisions, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">*</span> <span class="dv">100</span>, <span class="cn">NA</span>))</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(id, correct_decisions, total_decisions, accuracy)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df_with_total)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate accuracy for each fund manager excluding ambiguous cases (Base data)</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>fund_manager_accuracy_by_id_non_ambiguous_base <span class="ot">&lt;-</span> fund_manager_data <span class="sc">%&gt;%</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>is_ambiguous) <span class="sc">%&gt;%</span> <span class="co"># Filter out ambiguous cases</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id) <span class="sc">%&gt;%</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_decisions =</span> <span class="fu">n</span>(),</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">correct_decisions =</span> <span class="fu">sum</span>(asset_human <span class="sc">==</span> asset_algo),</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">accuracy =</span> <span class="fu">ifelse</span>(total_decisions <span class="sc">&gt;</span> <span class="dv">0</span>, (correct_decisions <span class="sc">/</span> total_decisions) <span class="sc">*</span> <span class="dv">100</span>, <span class="cn">NA</span>),</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">'drop'</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(accuracy)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">id =</span> <span class="fu">as.character</span>(id))</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate accuracy for each fund manager including ambiguous cases (Base data)</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Ambiguous cases are counted as correct.</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>fund_manager_accuracy_by_id_ambiguous_base <span class="ot">&lt;-</span> fund_manager_data <span class="sc">%&gt;%</span></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id) <span class="sc">%&gt;%</span></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_decisions =</span> <span class="fu">n</span>(), <span class="co"># Total decisions for this fund manager</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Correct decisions:</span></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># - If a case is ambiguous, it's counted as correct.</span></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># - If a case is not ambiguous, it's correct if asset_human == asset_algo.</span></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">correct_decisions =</span> <span class="fu">sum</span>( is_ambiguous <span class="sc">|</span> (asset_human <span class="sc">==</span> asset_algo <span class="sc">&amp;</span> <span class="sc">!</span>is_ambiguous) ),</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">accuracy =</span> <span class="fu">ifelse</span>(total_decisions <span class="sc">&gt;</span> <span class="dv">0</span>, (correct_decisions <span class="sc">/</span> total_decisions) <span class="sc">*</span> <span class="dv">100</span>, <span class="cn">NA</span>),</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">'drop'</span></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">id =</span> <span class="fu">as.character</span>(id)) <span class="sc">%&gt;%</span> <span class="co"># Ensure id is character for the helper function</span></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(accuracy))</span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Now, prepare the tables for printing using the helper function</span></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>fund_manager_accuracy_by_id_non_ambiguous_print <span class="ot">&lt;-</span> <span class="fu">add_total_row_and_format</span>(fund_manager_accuracy_by_id_non_ambiguous_base)</span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>fund_manager_accuracy_by_id_ambiguous_print <span class="ot">&lt;-</span> <span class="fu">add_total_row_and_format</span>(fund_manager_accuracy_by_id_ambiguous_base)</span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Print results for non-ambiguous cases</span></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Fund manager accuracy by id (excluding ambiguous cases):</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Fund manager accuracy by id (excluding ambiguous cases):</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(fund_manager_accuracy_by_id_non_ambiguous_print)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 13 × 4
+   id    correct_decisions total_decisions accuracy
+   &lt;chr&gt;             &lt;int&gt;           &lt;int&gt;    &lt;dbl&gt;
+ 1 35                   46              46    100  
+ 2 21                   44              45     97.8
+ 3 76                   44              50     88  
+ 4 87                   39              46     84.8
+ 5 110                  41              49     83.7
+ 6 3                    38              47     80.9
+ 7 60                   35              48     72.9
+ 8 18                   33              47     70.2
+ 9 73                   33              48     68.8
+10 54                   30              48     62.5
+11 97                   24              46     52.2
+12 42                   16              47     34.0
+13 Total               423             567     74.6</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Print results for cases including ambiguous ones</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Fund manager accuracy by id (including ambiguous cases):</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Fund manager accuracy by id (including ambiguous cases):</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(fund_manager_accuracy_by_id_ambiguous_print)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 13 × 4
+   id    correct_decisions total_decisions accuracy
+   &lt;chr&gt;             &lt;int&gt;           &lt;int&gt;    &lt;dbl&gt;
+ 1 35                   60              60    100  
+ 2 21                   59              60     98.3
+ 3 76                   54              60     90  
+ 4 87                   53              60     88.3
+ 5 110                  52              60     86.7
+ 6 3                    51              60     85  
+ 7 60                   47              60     78.3
+ 8 18                   46              60     76.7
+ 9 73                   45              60     75  
+10 54                   42              60     70  
+11 97                   38              60     63.3
+12 42                   29              60     48.3
+13 Total               576             720     80  </code></pre>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

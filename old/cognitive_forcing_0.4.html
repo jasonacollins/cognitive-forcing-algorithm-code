@@ -105,50 +105,51 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="setup-and-parameters">Setup and Parameters</h3>
 <p>This section sets up the necessary libraries and parameters for the simulation.</p>
 <ul>
-<li>It imports libraries like NumPy, Pandas, Matplotlib, Seaborn, and tqdm.</li>
+<li>It imports libraries like NumPy, Pandas, Matplotlib and Seaborn.</li>
 <li>It sets a random seed for reproducibility.</li>
 <li>It defines key parameters such as the prior probabilities of a good share (<code>p</code>), the probability of a high payoff for a good share (<code>q</code>), the payoff values for high and low outcomes (<code>high_payoff</code>, <code>low_payoff</code>), the bond payoff (<code>bond_payoff</code>), the number of trials per block (<code>num_trials</code>), and the number of simulations to run (<code>num_simulations</code>).</li>
 </ul>
-<div id="f96d91b1" class="cell" data-execution_count="1">
+<div id="b1ac2fca" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup and Parameters</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> itertools</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dataclasses <span class="im">import</span> dataclass</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> List, Dict, Tuple, Any, Optional</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Set random seed for reproducibility</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">20250410</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">## Configuration dataclass for global parameters</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="at">@dataclass</span>(frozen<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SimulationConfig:</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    p: List[<span class="bu">float</span>]               <span class="co"># Prior probabilities of good share</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    q: <span class="bu">float</span>                     <span class="co"># Probability of high payoff for good share</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    high_payoff: <span class="bu">float</span>           <span class="co"># Y value - high payoff amount</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    low_payoff: <span class="bu">float</span>            <span class="co"># Z value - low payoff amount</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    bond_payoff: <span class="bu">float</span>           <span class="co"># X value - safe bond payoff amount</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    num_trials: <span class="bu">int</span>              <span class="co"># Trials per block</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    num_simulations: <span class="bu">int</span>         <span class="co"># Number of simulations to run</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    ai_types: List[<span class="bu">str</span>]          <span class="co"># Types of AI to simulate</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    beta: <span class="bu">float</span>                  <span class="co"># Conservatism parameter</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Create default configuration</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>DEFAULT_CONFIG <span class="op">=</span> SimulationConfig(</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    p<span class="op">=</span>[<span class="fl">0.2</span>, <span class="fl">0.5</span>, <span class="fl">0.8</span>],</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    q<span class="op">=</span><span class="fl">0.7</span>,</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    high_payoff<span class="op">=</span><span class="dv">5</span>,</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    low_payoff<span class="op">=</span><span class="dv">1</span>,</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    bond_payoff<span class="op">=</span><span class="dv">3</span>,</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    num_trials<span class="op">=</span><span class="dv">13</span>,</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    num_simulations<span class="op">=</span><span class="dv">10000</span>,</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    ai_types<span class="op">=</span>[<span class="st">'perfect'</span>, <span class="st">'shortsighted'</span>, <span class="st">'earlycommitment'</span>, <span class="st">'conservative'</span>, <span class="st">'naiveprior'</span>],</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    beta<span class="op">=</span><span class="fl">0.5</span></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> itertools</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dataclasses <span class="im">import</span> dataclass</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> List, Dict, Tuple, Any, Optional</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Set random seed for reproducibility</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">20250410</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">## Configuration dataclass for global parameters</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="at">@dataclass</span>(frozen<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SimulationConfig:</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    p: List[<span class="bu">float</span>]               <span class="co"># Prior probabilities of good share</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    q: <span class="bu">float</span>                     <span class="co"># Probability of high payoff for good share</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    high_payoff: <span class="bu">float</span>           <span class="co"># Y value - high payoff amount</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    low_payoff: <span class="bu">float</span>            <span class="co"># Z value - low payoff amount</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    bond_payoff: <span class="bu">float</span>           <span class="co"># X value - safe bond payoff amount</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    num_trials: <span class="bu">int</span>              <span class="co"># Trials per block</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    num_simulations: <span class="bu">int</span>         <span class="co"># Number of simulations to run</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    ai_types: List[<span class="bu">str</span>]          <span class="co"># Types of AI to simulate</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    beta: <span class="bu">float</span>                  <span class="co"># Conservatism parameter</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Create default configuration</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>DEFAULT_CONFIG <span class="op">=</span> SimulationConfig(</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    p<span class="op">=</span>[<span class="fl">0.2</span>, <span class="fl">0.5</span>, <span class="fl">0.8</span>],</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    q<span class="op">=</span><span class="fl">0.7</span>,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    high_payoff<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    low_payoff<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    bond_payoff<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    num_trials<span class="op">=</span><span class="dv">6</span>,</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    num_simulations<span class="op">=</span><span class="dv">10000</span>,</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    ai_types<span class="op">=</span>[<span class="st">'perfect'</span>, <span class="st">'shortsighted'</span>, <span class="st">'earlycommitment'</span>, <span class="st">'conservative'</span>, <span class="st">'naiveprior'</span>],</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    beta<span class="op">=</span><span class="fl">0.5</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>This section defines the core functions for the investment task simulation and analytical solution:</p>
@@ -172,7 +173,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>It compares the expected return to the bond payoff and makes a recommendation accordingly.</li>
 </ul></li>
 </ul>
-<div id="68392412" class="cell" data-execution_count="2">
+<div id="efc8a228" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Investment Task Simulation Functions</span></span>
@@ -236,7 +237,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">'indifferent'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="1adc85ea" class="cell" data-execution_count="3">
+<div id="9db36805" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bayesian Posterior Calculation Function</span></span>
@@ -285,7 +286,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> numerator <span class="op">/</span> denominator <span class="cf">if</span> denominator <span class="op">!=</span> <span class="dv">0</span> <span class="cf">else</span> p</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="5d4cddf4" class="cell" data-execution_count="4">
+<div id="34d79158" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># AI Decision Function</span></span>
@@ -327,7 +328,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><strong>Ex-Post Type correctness</strong>: Evaluates if the AI’s recommendation matches what would have been optimal given perfect knowledge of the share type (good vs bad). This measures alignment with the true underlying asset quality.</p></li>
 <li><p><strong>Ex-Post Payoff correctness</strong>: Evaluates if the AI’s recommendation maximized payoff given the actual outcome (high vs low). This measures whether the decision was rewarded by the specific outcome that occurred.</p></li>
 </ol>
-<div id="303c9c9c" class="cell" data-execution_count="5">
+<div id="19c7454a" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">##########################</span></span>
@@ -462,7 +463,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>run_simulation</code>: Runs a single simulation of the investment task for a given prior probability (<code>p</code>). It simulates outcomes, calculates the correct decision, tracks the AI recommendations, and calculates accuracy metrics.</li>
 <li><code>run_all_simulations</code>: Runs simulations for all prior probabilities (<code>p</code>) and aggregates the results across multiple simulations.</li>
 </ul>
-<div id="f353bc28" class="cell" data-execution_count="6">
+<div id="4edf6ebd" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulation Runner Functions</span></span>
@@ -667,7 +668,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>seq_probability</code>: Calculates the probability of a specific sequence of outcomes given the share type (good or bad) and the prior probability.</li>
 <li><code>run_all_measures</code>: Runs the analytical solution for all measures (ex-ante, ex-post type, and ex-post payoff) across all prior probabilities and outcomes.</li>
 </ul>
-<div id="bc0045e8" class="cell" data-execution_count="7">
+<div id="b5f8e809" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">##########################</span></span>
@@ -913,7 +914,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>plot_trial_by_trial_performance</code>: Creates a plot visualizing the traditional accuracy of AI models across trials for different prior probabilities.</li>
 <li><code>display_forced_choice_results</code>: Displays the forced choice results in a formatted table.</li>
 </ul>
-<div id="1053bf2e" class="cell" data-execution_count="8">
+<div id="f0efe336" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualisation Functions</span></span>
@@ -1562,7 +1563,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>It performs detailed trial-by-trial analysis if enabled.</li>
 <li>It returns all results in a dictionary.</li>
 </ul>
-<div id="cfc5bd3b" class="cell" data-execution_count="9">
+<div id="27e917d7" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Main Execution Function</span></span>
@@ -1636,7 +1637,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li><strong><code>test_ai_recommendations</code>:</strong> Runs controlled scenarios to verify that the AI models are making expected recommendations in specific cases. This helps ensure the correctness of the simulation logic.</li>
 </ul>
-<div id="6b2b2955" class="cell" data-execution_count="10">
+<div id="4d251131" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostic and Testing Functions</span></span>
@@ -1690,7 +1691,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>It calls the <code>run_analysis</code> function with desired parameters.</li>
 <li>It displays the performance summary, performance by prior probability, and performance across trials using the visualization functions defined earlier.</li>
 </ul>
-<div id="721a7885" class="cell" data-execution_count="11">
+<div id="d4480a4e" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main(config: SimulationConfig <span class="op">=</span> DEFAULT_CONFIG,</span>
@@ -1790,7 +1791,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>The <code>run_analysis</code> function encapsulates the entire simulation process, including generating outcomes, calculating AI recommendations, and aggregating results.</li>
 <li>The results of the analysis are stored in the <code>analysis_results</code> dictionary, which will be used for further processing and visualization.</li>
 </ul>
-<div id="30e694e0" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:1000}}" data-execution_count="12">
+<div id="995b05f4" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the analysis</span></span>
@@ -1852,28 +1853,28 @@ Calculating analytical solution for p=0.8
 Based on Monte Carlo simulation with 10000 iterations
 
 Standard Results Table:
-Number of trials num_trials=13
+Number of trials num_trials=6
 
 ===== p = 0.2 =====
-  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8812, ex-post-payoff=0.6531
-  shortsighted    =&gt; ex-ante=0.8505, ex-post-type=0.7958, ex-post-payoff=0.6184
-  earlycommitment =&gt; ex-ante=0.8505, ex-post-type=0.7958, ex-post-payoff=0.6184
-  conservative    =&gt; ex-ante=0.9188, ex-post-type=0.8556, ex-post-payoff=0.6431
-  naiveprior      =&gt; ex-ante=0.8244, ex-post-type=0.8332, ex-post-payoff=0.6341
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8353, ex-post-payoff=0.6338
+  shortsighted    =&gt; ex-ante=0.8993, ex-post-type=0.7967, ex-post-payoff=0.6200
+  earlycommitment =&gt; ex-ante=0.8993, ex-post-type=0.7967, ex-post-payoff=0.6200
+  conservative    =&gt; ex-ante=0.9140, ex-post-type=0.8082, ex-post-payoff=0.6239
+  naiveprior      =&gt; ex-ante=0.7556, ex-post-type=0.7672, ex-post-payoff=0.6079
 
 ===== p = 0.5 =====
-  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8118, ex-post-payoff=0.6254
-  shortsighted    =&gt; ex-ante=0.8229, ex-post-type=0.6862, ex-post-payoff=0.5739
-  earlycommitment =&gt; ex-ante=0.8230, ex-post-type=0.6811, ex-post-payoff=0.5737
-  conservative    =&gt; ex-ante=1.0000, ex-post-type=0.8118, ex-post-payoff=0.6254
-  naiveprior      =&gt; ex-ante=1.0000, ex-post-type=0.8118, ex-post-payoff=0.6254
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.7144, ex-post-payoff=0.5850
+  shortsighted    =&gt; ex-ante=0.9022, ex-post-type=0.6634, ex-post-payoff=0.5628
+  earlycommitment =&gt; ex-ante=0.9013, ex-post-type=0.6598, ex-post-payoff=0.5631
+  conservative    =&gt; ex-ante=1.0000, ex-post-type=0.7144, ex-post-payoff=0.5850
+  naiveprior      =&gt; ex-ante=1.0000, ex-post-type=0.7144, ex-post-payoff=0.5850
 
 ===== p = 0.8 =====
-  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8858, ex-post-payoff=0.6562
-  shortsighted    =&gt; ex-ante=0.8560, ex-post-type=0.8066, ex-post-payoff=0.6236
-  earlycommitment =&gt; ex-ante=0.8560, ex-post-type=0.8066, ex-post-payoff=0.6236
-  conservative    =&gt; ex-ante=0.9223, ex-post-type=0.8645, ex-post-payoff=0.6468
-  naiveprior      =&gt; ex-ante=0.8284, ex-post-type=0.8343, ex-post-payoff=0.6352
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8353, ex-post-payoff=0.6354
+  shortsighted    =&gt; ex-ante=0.9022, ex-post-type=0.7990, ex-post-payoff=0.6207
+  earlycommitment =&gt; ex-ante=0.9022, ex-post-type=0.7990, ex-post-payoff=0.6207
+  conservative    =&gt; ex-ante=0.9170, ex-post-type=0.8112, ex-post-payoff=0.6261
+  naiveprior      =&gt; ex-ante=0.7567, ex-post-type=0.7682, ex-post-payoff=0.6100
 
 
 STANDARD PERFORMANCE BY PRIOR PROBABILITY</code></pre>
@@ -1904,25 +1905,25 @@ Based on Monte Carlo simulation with 10000 iterations
 
 ===== FORCED CHOICE ACCURACY (EXCLUDING EV TIES) =====
 Prior p = 0.2
-  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8812, ex-post-payoff=0.6531 (using 100.0% of trials)
-  shortsighted    =&gt; ex-ante=0.8505, ex-post-type=0.7958, ex-post-payoff=0.6184 (using 100.0% of trials)
-  earlycommitment =&gt; ex-ante=0.8505, ex-post-type=0.7958, ex-post-payoff=0.6184 (using 100.0% of trials)
-  conservative    =&gt; ex-ante=0.9188, ex-post-type=0.8556, ex-post-payoff=0.6431 (using 100.0% of trials)
-  naiveprior      =&gt; ex-ante=0.8244, ex-post-type=0.8332, ex-post-payoff=0.6341 (using 100.0% of trials)
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8353, ex-post-payoff=0.6338 (using 100.0% of trials)
+  shortsighted    =&gt; ex-ante=0.8993, ex-post-type=0.7967, ex-post-payoff=0.6200 (using 100.0% of trials)
+  earlycommitment =&gt; ex-ante=0.8993, ex-post-type=0.7967, ex-post-payoff=0.6200 (using 100.0% of trials)
+  conservative    =&gt; ex-ante=0.9140, ex-post-type=0.8083, ex-post-payoff=0.6239 (using 100.0% of trials)
+  naiveprior      =&gt; ex-ante=0.7556, ex-post-type=0.7672, ex-post-payoff=0.6079 (using 100.0% of trials)
 
 Prior p = 0.5
-  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8748, ex-post-payoff=0.6507 (using 83.2% of trials)
-  shortsighted    =&gt; ex-ante=0.7871, ex-post-type=0.7235, ex-post-payoff=0.5897 (using 83.2% of trials)
-  earlycommitment =&gt; ex-ante=0.7872, ex-post-type=0.7187, ex-post-payoff=0.5879 (using 83.2% of trials)
-  conservative    =&gt; ex-ante=1.0000, ex-post-type=0.8748, ex-post-payoff=0.6507 (using 83.2% of trials)
-  naiveprior      =&gt; ex-ante=1.0000, ex-post-type=0.8748, ex-post-payoff=0.6507 (using 83.2% of trials)
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.7989, ex-post-payoff=0.6185 (using 71.7% of trials)
+  shortsighted    =&gt; ex-ante=0.8637, ex-post-type=0.7275, ex-post-payoff=0.5883 (using 71.7% of trials)
+  earlycommitment =&gt; ex-ante=0.8625, ex-post-type=0.7237, ex-post-payoff=0.5876 (using 71.7% of trials)
+  conservative    =&gt; ex-ante=1.0000, ex-post-type=0.7989, ex-post-payoff=0.6185 (using 71.7% of trials)
+  naiveprior      =&gt; ex-ante=1.0000, ex-post-type=0.7989, ex-post-payoff=0.6185 (using 71.7% of trials)
 
 Prior p = 0.8
-  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8858, ex-post-payoff=0.6562 (using 100.0% of trials)
-  shortsighted    =&gt; ex-ante=0.8560, ex-post-type=0.8066, ex-post-payoff=0.6236 (using 100.0% of trials)
-  earlycommitment =&gt; ex-ante=0.8560, ex-post-type=0.8066, ex-post-payoff=0.6236 (using 100.0% of trials)
-  conservative    =&gt; ex-ante=0.9223, ex-post-type=0.8645, ex-post-payoff=0.6468 (using 100.0% of trials)
-  naiveprior      =&gt; ex-ante=0.8284, ex-post-type=0.8343, ex-post-payoff=0.6352 (using 100.0% of trials)
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8353, ex-post-payoff=0.6354 (using 100.0% of trials)
+  shortsighted    =&gt; ex-ante=0.9022, ex-post-type=0.7990, ex-post-payoff=0.6207 (using 100.0% of trials)
+  earlycommitment =&gt; ex-ante=0.9022, ex-post-type=0.7990, ex-post-payoff=0.6207 (using 100.0% of trials)
+  conservative    =&gt; ex-ante=0.9170, ex-post-type=0.8113, ex-post-payoff=0.6261 (using 100.0% of trials)
+  naiveprior      =&gt; ex-ante=0.7567, ex-post-type=0.7682, ex-post-payoff=0.6100 (using 100.0% of trials)
 
 
 FORCED CHOICE ACCURACY BY PRIOR PROBABILITY</code></pre>
@@ -1940,28 +1941,28 @@ FORCED CHOICE ACCURACY BY PRIOR PROBABILITY</code></pre>
 Exact mathematical solution for all possible sequences
 
 Analytical Results Table:
-Number of trials num_trials=13
+Number of trials num_trials=6
 
 ===== p = 0.2 =====
-  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8827, ex-post-payoff=0.6531
-  shortsighted    =&gt; ex-ante=0.8531, ex-post-type=0.8000, ex-post-payoff=0.6200
-  earlycommitment =&gt; ex-ante=0.8531, ex-post-type=0.8000, ex-post-payoff=0.6200
-  conservative    =&gt; ex-ante=0.9204, ex-post-type=0.8593, ex-post-payoff=0.6437
-  naiveprior      =&gt; ex-ante=0.8259, ex-post-type=0.8335, ex-post-payoff=0.6334
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8362, ex-post-payoff=0.6345
+  shortsighted    =&gt; ex-ante=0.9020, ex-post-type=0.8000, ex-post-payoff=0.6200
+  earlycommitment =&gt; ex-ante=0.9020, ex-post-type=0.8000, ex-post-payoff=0.6200
+  conservative    =&gt; ex-ante=0.9170, ex-post-type=0.8122, ex-post-payoff=0.6249
+  naiveprior      =&gt; ex-ante=0.7547, ex-post-type=0.7675, ex-post-payoff=0.6070
 
 ===== p = 0.5 =====
-  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8104, ex-post-payoff=0.6242
-  shortsighted    =&gt; ex-ante=0.8222, ex-post-type=0.6846, ex-post-payoff=0.5738
-  earlycommitment =&gt; ex-ante=0.8222, ex-post-type=0.6846, ex-post-payoff=0.5738
-  conservative    =&gt; ex-ante=1.0000, ex-post-type=0.8104, ex-post-payoff=0.6242
-  naiveprior      =&gt; ex-ante=1.0000, ex-post-type=0.8104, ex-post-payoff=0.6242
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.7175, ex-post-payoff=0.5870
+  shortsighted    =&gt; ex-ante=0.9024, ex-post-type=0.6667, ex-post-payoff=0.5667
+  earlycommitment =&gt; ex-ante=0.9024, ex-post-type=0.6667, ex-post-payoff=0.5667
+  conservative    =&gt; ex-ante=1.0000, ex-post-type=0.7175, ex-post-payoff=0.5870
+  naiveprior      =&gt; ex-ante=1.0000, ex-post-type=0.7175, ex-post-payoff=0.5870
 
 ===== p = 0.8 =====
-  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8827, ex-post-payoff=0.6531
-  shortsighted    =&gt; ex-ante=0.8531, ex-post-type=0.8000, ex-post-payoff=0.6200
-  earlycommitment =&gt; ex-ante=0.8531, ex-post-type=0.8000, ex-post-payoff=0.6200
-  conservative    =&gt; ex-ante=0.9204, ex-post-type=0.8593, ex-post-payoff=0.6437
-  naiveprior      =&gt; ex-ante=0.8259, ex-post-type=0.8335, ex-post-payoff=0.6334
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8362, ex-post-payoff=0.6345
+  shortsighted    =&gt; ex-ante=0.9020, ex-post-type=0.8000, ex-post-payoff=0.6200
+  earlycommitment =&gt; ex-ante=0.9020, ex-post-type=0.8000, ex-post-payoff=0.6200
+  conservative    =&gt; ex-ante=0.9170, ex-post-type=0.8122, ex-post-payoff=0.6249
+  naiveprior      =&gt; ex-ante=0.7547, ex-post-type=0.7675, ex-post-payoff=0.6070
 
 
 ANALYTICAL PERFORMANCE BY PRIOR PROBABILITY</code></pre>
@@ -1982,25 +1983,25 @@ Analytical Forced Choice Results Table:
 
 ===== FORCED CHOICE ACCURACY (EXCLUDING EV TIES) =====
 Prior p = 0.2
-  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8827, ex-post-payoff=0.6531 (using 100.0% of trials)
-  shortsighted    =&gt; ex-ante=0.8531, ex-post-type=0.8000, ex-post-payoff=0.6200 (using 100.0% of trials)
-  earlycommitment =&gt; ex-ante=0.8531, ex-post-type=0.8000, ex-post-payoff=0.6200 (using 100.0% of trials)
-  conservative    =&gt; ex-ante=0.9204, ex-post-type=0.8593, ex-post-payoff=0.6437 (using 100.0% of trials)
-  naiveprior      =&gt; ex-ante=0.8259, ex-post-type=0.8335, ex-post-payoff=0.6334 (using 100.0% of trials)
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8362, ex-post-payoff=0.6345 (using 100.0% of trials)
+  shortsighted    =&gt; ex-ante=0.9020, ex-post-type=0.8000, ex-post-payoff=0.6200 (using 100.0% of trials)
+  earlycommitment =&gt; ex-ante=0.9020, ex-post-type=0.8000, ex-post-payoff=0.6200 (using 100.0% of trials)
+  conservative    =&gt; ex-ante=0.9170, ex-post-type=0.8122, ex-post-payoff=0.6249 (using 100.0% of trials)
+  naiveprior      =&gt; ex-ante=0.7547, ex-post-type=0.7675, ex-post-payoff=0.6070 (using 100.0% of trials)
 
 Prior p = 0.5
-  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8733, ex-post-payoff=0.6493 (using 83.2% of trials)
-  shortsighted    =&gt; ex-ante=0.7862, ex-post-type=0.7220, ex-post-payoff=0.5888 (using 83.2% of trials)
-  earlycommitment =&gt; ex-ante=0.7862, ex-post-type=0.7220, ex-post-payoff=0.5888 (using 83.2% of trials)
-  conservative    =&gt; ex-ante=1.0000, ex-post-type=0.8733, ex-post-payoff=0.6493 (using 83.2% of trials)
-  naiveprior      =&gt; ex-ante=1.0000, ex-post-type=0.8733, ex-post-payoff=0.6493 (using 83.2% of trials)
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8024, ex-post-payoff=0.6210 (using 71.9% of trials)
+  shortsighted    =&gt; ex-ante=0.8642, ex-post-type=0.7317, ex-post-payoff=0.5927 (using 71.9% of trials)
+  earlycommitment =&gt; ex-ante=0.8642, ex-post-type=0.7317, ex-post-payoff=0.5927 (using 71.9% of trials)
+  conservative    =&gt; ex-ante=1.0000, ex-post-type=0.8024, ex-post-payoff=0.6210 (using 71.9% of trials)
+  naiveprior      =&gt; ex-ante=1.0000, ex-post-type=0.8024, ex-post-payoff=0.6210 (using 71.9% of trials)
 
 Prior p = 0.8
-  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8827, ex-post-payoff=0.6531 (using 100.0% of trials)
-  shortsighted    =&gt; ex-ante=0.8531, ex-post-type=0.8000, ex-post-payoff=0.6200 (using 100.0% of trials)
-  earlycommitment =&gt; ex-ante=0.8531, ex-post-type=0.8000, ex-post-payoff=0.6200 (using 100.0% of trials)
-  conservative    =&gt; ex-ante=0.9204, ex-post-type=0.8593, ex-post-payoff=0.6437 (using 100.0% of trials)
-  naiveprior      =&gt; ex-ante=0.8259, ex-post-type=0.8335, ex-post-payoff=0.6334 (using 100.0% of trials)
+  perfect         =&gt; ex-ante=1.0000, ex-post-type=0.8362, ex-post-payoff=0.6345 (using 100.0% of trials)
+  shortsighted    =&gt; ex-ante=0.9020, ex-post-type=0.8000, ex-post-payoff=0.6200 (using 100.0% of trials)
+  earlycommitment =&gt; ex-ante=0.9020, ex-post-type=0.8000, ex-post-payoff=0.6200 (using 100.0% of trials)
+  conservative    =&gt; ex-ante=0.9170, ex-post-type=0.8122, ex-post-payoff=0.6249 (using 100.0% of trials)
+  naiveprior      =&gt; ex-ante=0.7547, ex-post-type=0.7675, ex-post-payoff=0.6070 (using 100.0% of trials)
 
 
 ANALYTICAL FORCED CHOICE PERFORMANCE BY PRIOR PROBABILITY</code></pre>

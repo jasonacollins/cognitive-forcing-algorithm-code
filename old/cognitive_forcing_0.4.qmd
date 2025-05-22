@@ -1,6 +1,7 @@
 ---
 jupyter: python3
 code-fold: true
+freeze: true
 ---
 
 ## Investment Algorithm Accuracy Simulation
@@ -16,6 +17,7 @@ This section sets up the necessary libraries and parameters for the simulation.
 
 ```{python}
 # Setup and Parameters
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -47,7 +49,7 @@ DEFAULT_CONFIG = SimulationConfig(
     high_payoff=5,
     low_payoff=1,
     bond_payoff=3,
-    num_trials=13,
+    num_trials=6,
     num_simulations=10000,
     ai_types=['perfect', 'shortsighted', 'earlycommitment', 'conservative', 'naiveprior'],
     beta=0.5
@@ -1670,7 +1672,6 @@ This section initiates the analysis by calling the `run_analysis` function.
 - The results of the analysis are stored in the `analysis_results` dictionary, which will be used for further processing and visualization.
 
 ```{python}
-#| colab: {base_uri: https://localhost:8080/, height: 1000}
 # Run the analysis
 if __name__ == "__main__":
     # Run with default configuration
@@ -1694,4 +1695,3 @@ if __name__ == "__main__":
     # Or just override the number of simulations:
     # results = main(num_simulations_override=500)
 ```
-

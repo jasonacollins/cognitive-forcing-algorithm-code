@@ -1,0 +1,1989 @@
+---
+format: html
+code-fold: true
+freeze: auto
+lightbox: true
+---
+
+## Introduction
+
+In this document, we:
+
+- describe the investment task
+- analyse the accuracy of a series of algorithms designed to predict the option with the highest expected value
+- analyse a dataset of people undertaking this task
+- compare the relative accuracy of the algorithms and humans
+
+## The investment task
+
+Experimental participants choose between:
+
+- A risk free asset (e.g. a bond) that pays a set amount \$$X$ with certainty
+- A risky asset (e.g. a share) that is good with probability $p$ and bad with probability $1-p$
+	- When the risky asset is good, it pays high (\$$Y$) with probability $q>50\%$ or low (\$$Z$) with probability $1-q$.
+	- When the risky asset is bad, it pays high (\$$Y$) with probability $1-q$ and low (\$$Z$) with probability $q>50\%$.
+
+For example:
+
+- A bond pays \$3 with certainty.
+- The probability of the share being good is 50%.
+- The good share pays \$5 with 70% probability and \$1 with 30% probability.
+- The bad share pays \$5 with 30% probability and \$1 with 70% probability.
+
+The participant makes this decision over a series of investment decisions within a round. The share quality remains the same within a round, enabling the player (or AI) to infer the quality of the share and preferred investment option.
+
+### The investment process
+
+The process runs as follows:
+
+- The experiment consists of M investment "rounds"
+- Each round contains N "investment decisions"
+- At the beginning of each round, the quality of share is drawn in accordance with probability $p$. The share quality is not revealed to the player or AI. However, the player and AI are informed of the prior probability $p$. (e.g. the share is good with probability 80%)
+- For each investment decision in a round, the player makes investment decisions (share or bond) with advice (or not) from an AI and an explanation (or not) of that advice
+- After each investment decision, the share outcome is drawn in accordance with probability $q$ and the type of share. The outcomes of the risky asset are shown to player, plus their own outcome. Observing the outcome of the risk asset enables the player to infer the share quality and adapt their investment strategy for subsequent investment decisions within the round.
+- After each round of N investment decisions, investors were shown summary of their payoff for the round
+
+At the commencement of the next round, a new quality is drawn for the share
+
+## The artificial intelligences
+
+Players in all conditions except the control condition have access to investment advice from an AI. The AI is designed to maximise expected return. Each AI does this in a different way (with varying levels of accuracy).
+
+The AIs are:
+
+- The perfect AI: Maximises expected return using Bayes's rule.
+- The conservative AI: Updates insufficiently on new evidence.
+- The prior-only AI: Does not update on new evidence.
+- The myopic AI: Only considers the most recent outcome.
+- The low-memory AI: Only considers the most recent outcome, but updates the prior with the first outcome.
+- The naive prior AI: Assumes an equal prior for each share type.
+
+Where the AI is indifferent between the two options, the AI will inform the player accordingly.
+
+Each AI uses the following equation to calculate the probability that the share is the good share. For a sequence of $n_H$ high payoffs and $n_L$ low payoffs, the posterior probability that the share is good during a block is:
+
+$$
+P(\text{good share}|\text{outcomes}) = \frac{p^\alpha \cdot (q^{n_H} \cdot (1-q)^{n_L})^\beta}{p^\alpha \cdot (q^{n_H} \cdot (1-q)^{n_L})^\beta + (1-p)^{\alpha} \cdot ((1-q)^{n_H} \cdot q^{n_L})^\beta}  
+$$
+
+Where:
+
+- $p$ = prior probability that the share is the good share
+- $1-p$ = prior probability that the share is the bad share
+- $q$ = probability of high payoff for the good share or low payoff for the bad share
+- $1-q$ = probability of low payoff for the good share or high payoff for the bad share
+- $\alpha$ = parameter that determines the weight given to the prior probability of the share being good (the higher the value, the more weight given to the prior)
+- $\beta$ = parameter that determines the weight given to the likelihood of the observed outcomes (the higher the value, the more weight given to the observed outcomes)
+
+Each AI recommends the option that they calculate has the highest expected return. The expected return for the risky asset is:
+
+\begin{align*}
+E(\text{risky asset}) = P(\text{good share}|\text{outcomes}) \cdot q \cdot Y + P(\text{bad share}|\text{outcomes}) \cdot (1-q) \cdot Y + \\[6pt]
+ P(\text{good share}|\text{outcomes}) \cdot (1-q) \cdot Z + P(\text{bad share}|\text{outcomes}) \cdot q \cdot Z
+\end{align*}
+
+Where:
+
+- $Y$ = high payoff
+- $Z$ = low payoff
+- $P(\text{good share}|\text{outcomes})$ = posterior probability that the share is good
+- $P(\text{bad share}|\text{outcomes}) = 1-P(\text{good share}|\text{outcomes})$ = posterior probability that the share is bad
+
+If expected returns are equal, the AI states that it is indifferent between the two options.
+
+### The perfect AI
+
+The perfect AI is programmed to maximise expected return using Bayes's Law. For the perfect AI, $\alpha = 1$ and $\beta = 1$. The equation therefore simplifies to:
+
+$$  
+P(\text{good share}|\text{outcomes}) = \frac{p \cdot q^{n_H} \cdot (1-q)^{n_L}}{p \cdot q^{n_H} \cdot (1-q)^{n_L} + (1-p) \cdot (1-q)^{n_H} \cdot q^{n_L}}  
+$$
+
+For an experiment where $p=0.5$ and $q = 0.7$, the equation becomes:
+
+$$
+P(\text{good share}|\text{outcomes}) = \frac{0.5 \cdot 0.7^{n_H} \cdot 0.3^{n_L}}{0.5 \cdot 0.7^{n_H} \cdot 0.3^{n_L} + (1-0.5) \cdot 0.3^{n_H} \cdot 0.7^{n_L}}
+$$
+
+### The conservative AI
+
+The conservative AI updates insufficiently on new evidence This is implemented via setting $\alpha=1$ and $\beta=0.5$. The equation becomes:
+
+$$
+P(\text{good share}|\text{outcomes}) = \frac{p \cdot q^{0.5n_H} \cdot (1-q)^{0.5n_L}}{p \cdot q^{0.5n_H} \cdot (1-q)^{0.5n_L} + (1-p) \cdot (1-q)^{0.5n_H} \cdot q^{0.5n_L}}
+$$
+
+### The no-update AI
+
+The no-update AI is a special case of the conservative AI. It does not update on new evidence. This is implemented via setting $\alpha=1$ and $\beta=0$. The equation becomes:
+
+$$
+P(\text{good share}|\text{outcomes}) = \frac{p}{p + (1-p)}=p
+$$
+
+### The low-memory AI
+
+The low-memory AI bases its prediction of whether the share is good or bad depending on whether the payoff in the previous period was high or low. If high, predict good. If low, predict bad.
+
+The low-memory AI makes the same prediction as the perfect AI for the first period (before seeing any trials) and often on the first (having a single observation), but it will then vary with variation in the payout more often than the perfect AI.
+
+For the first trial:
+
+$$P(\text{good share}) = p$$
+
+For subsequent trials:
+
+$$
+P(\text{good share}|\text{previous outcome}) = \begin{cases}
+\frac{p \cdot q}{p \cdot q + (1-p) \cdot (1-q)} & {\text{if } \text{previous outcome} = \text{high}} \\[6pt]
+\frac{p \cdot (1-q)}{p \cdot (1-q) + (1-p) \cdot q} & {\text{if } \text{previous outcome} = \text{low}} \\[6pt]
+\end{cases}
+$$
+
+### The myopic AI
+
+The myopic AI only considers the most recent outcome. Unlike the low-memory AI, which updates the initial prior with the initial outcome, the myopic AI only considers the most recent outcome.
+
+For the first trial:
+
+$$P(\text{good share}) = p$$
+
+For subsequent trials:
+
+$$
+P(\text{good share}|\text{previous outcome}) = \begin{cases}
+q & {\text{if } \text{previous outcome} = \text{high}} \\[6pt]
+1-q & {\text{if } \text{previous outcome} = \text{low}} \\[6pt]
+\end{cases}
+$$
+
+### The naive prior
+
+The naive prior AI assumes an equal prior for each share type. This is effectively setting $\alpha = 0$ and $\beta=1$in the equation above. Therefore, equation for the naive prior AI becomes:
+
+$$
+P(\text{good share}|\text{outcomes}) = \frac{q^{n_H} \cdot (1-q)^{n_L}}{q^{n_H} \cdot (1-q)^{n_L} + (1-q)^{n_H} \cdot q^{n_L}}
+$$
+
+The naive prior AI might make a different prediction to the perfect AI when $p \neq 0.5$.
+
+
+## Investment Algorithm Accuracy Calculation
+
+This notebook simulates the accuracy of different investment algorithms in an uncertain environment. It compares the performance of four different AI models against a benchmark of perfect knowledge. The simulation involves a simple investment task where an agent must decide between investing in a risky asset (a share) or a safe asset (a bond) over multiple trials.
+
+### Setup and Parameters
+This section sets up the necessary libraries and parameters for the simulation.
+
+- It imports libraries like tidyverse and ggplot.
+- It sets a random seed for reproducibility.
+- It defines key parameters such as the prior probabilities of a good share (`p`), the probability of a high payoff for a good share (`q`), the payoff values for high and low outcomes (`high_payoff`, `low_payoff`), the bond payoff (`bond_payoff`), the number of investment decisions per round (`num_trials`), and the number of simulations to run (`num_simulations`).
+
+```{r setup}
+# Setup and Parameters
+library(tidyverse)
+library(ggplot2)
+
+
+# Set random seed for reproducibility
+set.seed(20250410)
+
+# Configuration list for global parameters
+simulation_config <- function(
+  p = c(0.2, 0.5, 0.8),                # Prior probabilities of good share
+  q = 0.7,                             # Probability of high payoff for good share
+  high_payoff = 5,                     # Y value - high payoff amount
+  low_payoff = 1,                      # Z value - low payoff amount
+  bond_payoff = 3,                     # X value - safe bond payoff amount
+  num_trials = 6,                     # Trials per round
+  num_simulations = 1000,             # Number of simulations to run
+  ai_types = c("perfect", "conservative", "prior_only", "myopic", "low_memory", "naive_prior"),
+  beta = 0.5                           # Conservatism parameter
+) {
+  return(list(
+    p = p,
+    q = q,
+    high_payoff = high_payoff,
+    low_payoff = low_payoff,
+    bond_payoff = bond_payoff,
+    num_trials = num_trials,
+    num_simulations = num_simulations,
+    ai_types = ai_types,
+    beta = beta
+  ))
+}
+
+# Create default configuration
+DEFAULT_CONFIG <- simulation_config()
+```
+
+### Core Functions
+
+This section defines the core functions for the investment task simulation and analytical solution:
+
+- `simulate_outcomes`: Simulates the outcomes (high or low) for a given share type (good or bad) over a specified number of trials. It uses the `q` probability to determine the likelihood of each outcome.
+- `calculate_expected_return`: Calculates the expected return for the risky asset (share) based on the posterior probability of it being good. This is used to make informed investment decisions.
+- `get_correct_decision`: Determines the optimal investment decision (share or bond) given the true share type. This represents perfect knowledge and serves as a benchmark for evaluating the AI models.
+- `calculate_posterior`: Calculates the posterior probability based on the AI type and available information:
+  - For 'perfect': Uses Bayes' rule with all available data, representing the ideal scenario with perfect knowledge and reasoning.
+  - For 'conservative': Calculates the posterior using a conservative approach, where it updates insufficiently based on the outcomes.
+  - For 'prior_only': Assumes the prior probability remains unchanged, representing an AI that does not update its beliefs based on new evidence.
+  - For 'myopic': Calculates the posterior based only on the most recent outcome, representing an AI that is short-sighted and only considers the latest information.
+  - For 'low_memory': Calculates the posterior based only on the most recent outcome, representing an AI with limited memory or focus.
+  - For 'naive_prior': Calculates the posterior using all data but assumes a fixed 50/50 prior, representing an AI with an inaccurate understanding of the prior probabilities.
+- the `get_ai_recommendation` function, which determines the AI's investment recommendation (share, bond, or indifferent) based on the AI type and the available information.
+  - It takes the AI type, prior probability, outcomes so far, and the current trial number as input.
+  - It calculates the posterior probability using the appropriate AI type.
+  - It calculates the expected return based on the posterior.
+  - It compares the expected return to the bond payoff and makes a recommendation accordingly.
+
+```{r simulation functions}
+# Investment Task Simulation Functions
+simulate_outcomes <- function(share_type, config) {
+  # Simulate high/low outcomes for a given share type
+  #
+  # Args:
+  #   share_type: 'good' or 'bad' - the actual quality of the share
+  #   config: Simulation configuration parameters
+  #
+  # Returns:
+  #   Vector of 'high' or 'low' outcomes for each trial
+  
+  if (share_type == "good") {
+    outcomes <- sample(c("high", "low"), size = config$num_trials, 
+                      prob = c(config$q, 1-config$q), replace = TRUE)
+    return(outcomes)
+  } else { # share_type == 'bad'
+    outcomes <- sample(c("high", "low"), size = config$num_trials, 
+                      prob = c(1-config$q, config$q), replace = TRUE)
+    return(outcomes)
+  }
+}
+
+calculate_expected_return <- function(posterior_good, config) {
+  # Calculate expected return for the risky asset based on posterior probability
+  #
+  # Args:
+  #   posterior_good: probability that the share is good
+  #   config: Simulation configuration parameters
+  #
+  # Returns:
+  #   Expected monetary return of investing in the share
+  
+  posterior_bad <- 1 - posterior_good
+  
+  # Calculate expected return using equation from the experiment design
+  return(posterior_good * config$q * config$high_payoff +
+         posterior_bad * (1-config$q) * config$high_payoff +
+         posterior_good * (1-config$q) * config$low_payoff +
+         posterior_bad * config$q * config$low_payoff)
+}
+
+# set tolerance for floating point comparison
+EPS <- 1e-10   # or a bit larger, e.g. 1e-9
+
+decision_from_ev <- function(ev, bond) {
+  if (abs(ev - bond) < EPS) {
+    return("indifferent")
+  } else if (ev > bond) {
+    return("share")
+  } else {
+    return("bond")
+  }
+}
+
+get_correct_decision <- function(true_share_type, config) {
+  # Determine the correct investment decision given the true share type
+  #
+  # Args:
+  #   true_share_type: 'good' or 'bad' - the actual quality of the share
+  #   config: Simulation configuration parameters
+  #
+  # Returns:
+  #   'share' or 'bond' or 'indifferent' - the optimal investment choice
+  
+  # If we know the true share type, posterior probability is either 0 or 1
+  p_good <- if(true_share_type == "good") 1 else 0
+  expected_return <- calculate_expected_return(p_good, config)
+  
+  return(decision_from_ev(expected_return, config$bond_payoff))
+}
+```
+
+```{r posterior-calculation}
+calculate_posterior <- function(ai_type, p, outcomes, current_trial, config) {
+  # Calculate posterior probability based on AI type and available information
+  #
+  # Args:
+  #   ai_type: 'perfect', 'conservative', 'prior_only', 'myopic', 'low_memory', or 'naive_prior'
+  #   p: prior probability of good share
+  #   outcomes: vector of all outcomes so far
+  #   current_trial: the current trial number (0-indexed)
+  #   config: Simulation configuration parameters
+  #
+  # Returns:
+  #   Updated probability that the share is good
+  
+  # For naive prior with no outcomes, always use 0.5
+  if (ai_type == "naive_prior" && length(outcomes) == 0) {
+    return(0.5)
+  }
+
+  # With no observations, return the prior (except for naive_prior handled above)
+  if (length(outcomes) == 0) {
+    return(p)  # No evidence yet, return the prior for other models
+  }
+  
+  # Handle different AI types
+  if (ai_type == "myopic") {
+    # Myopic AI only considers the most recent outcome with fixed probabilities
+    most_recent <- outcomes[length(outcomes)]
+    if (most_recent == "high") {
+      return(config$q)  # Probability of high given good
+    } else {
+      return(1 - config$q)  # Probability of low given good
+    }
+  } else if (ai_type == "low_memory") {
+    # Low_memory AI only considers the most recent outcome (with Bayesian update from prior)
+    outcomes <- outcomes[length(outcomes)]
+  } else if (ai_type == "prior_only") {
+    # Prior_only AI only uses the prior probability
+    return(p)
+  } else if (ai_type == "naive_prior") {
+    # Naïve prior AI uses all data but always assumes a 50/50 prior
+    p <- 0.5
+  }
+  
+  # Count high and low outcomes
+  nH <- sum(outcomes == "high")
+  nL <- length(outcomes) - nH
+  
+  # Calculate posterior using Bayes' rule
+  if (ai_type == "conservative") {
+    # Conservative AI updates insufficiently
+    numerator <- p * ((config$q ^ nH) * ((1-config$q) ^ nL)) ^ config$beta
+    denominator <- numerator + (1-p) * (((1-config$q) ^ nH) * (config$q ^ nL)) ^ config$beta
+  } else if (ai_type == "prior_only") {
+    # No update AI doesn't use any outcomes
+    return(p)
+  } else {
+    # Standard Bayesian update for other AI types
+    numerator <- p * (config$q ^ nH) * ((1-config$q) ^ nL)
+    denominator <- numerator + (1-p) * ((1-config$q) ^ nH) * (config$q ^ nL)
+  }
+  
+  return(if(denominator != 0) numerator / denominator else p)
+}
+```
+
+```{r ai-recommendation}
+get_ai_recommendation <- function(ai_type, p, outcomes, current_trial, config) {
+  # Determine AI's recommendation based on AI type and available information
+  #
+  # Args:
+  #   ai_type: AI model type
+  #   p: prior probability of good share
+  #   outcomes: vector of all outcomes so far
+  #   current_trial: the current trial number (0-indexed)
+  #   config: Simulation configuration parameters
+  #
+  # Returns:
+  #   'share', 'bond', or 'indifferent' - the AI's recommendation
+  
+  # Calculate posterior probability based on AI type
+  posterior_good <- calculate_posterior(ai_type, p, outcomes, current_trial, config)
+  
+  # Calculate expected return and make recommendation
+  expected_return <- calculate_expected_return(posterior_good, config)
+  
+  return(decision_from_ev(expected_return, config$bond_payoff))
+}
+```
+
+## Metric calculation functions
+
+It calculates exact probabilities for all possible outcome sequences rather than using simulation.
+
+1. **Ex-Ante correctness**: Evaluates if the AI's recommendation matches the optimal decision based on perfect Bayesian reasoning given available information. It measures statistical optimality regardless of outcome.
+
+2. **Ex-Post Type correctness**: Evaluates if the AI's recommendation matches what would have been optimal given perfect knowledge of the share type (good vs bad). This measures alignment with the true underlying asset quality.
+
+3. **Ex-Post Payoff correctness**: Evaluates if the AI's recommendation maximized payoff given the actual outcome (high vs low). This measures whether the decision was rewarded by the specific outcome that occurred.
+
+```{r accuracy-measures}
+measure_ex_ante_correctness <- function(ai_rec, true_bayes_post, config) {
+  # 1) Ex-Ante correctness = does the AI's action match the *fully* Bayesian (perfect) EV?
+  #    - If EV(share) > bond => share is correct
+  #    - If EV(share) < bond => bond  is correct
+  #    - If tie => indifferent is correct
+  
+  ev_share_correct <- calculate_expected_return(true_bayes_post, config)
+  if (abs(ev_share_correct - config$bond_payoff) < 1e-10) {
+    # Perfect tie => only indifferent gets full credit
+    return(if(ai_rec == "indifferent") 1.0 else 0.0)
+  } else if (ev_share_correct > config$bond_payoff) {
+    return(if(ai_rec == "share") 1.0 else 0.0)
+  } else {
+    return(if(ai_rec == "bond") 1.0 else 0.0)
+  }
+}
+
+measure_ex_post_share_type <- function(ai_rec, share_type) {
+  # 2) Old Ex-post measure (share-type):
+  #    - If share is good => share=1, bond=0, indifferent=0.5
+  #    - If share is bad  => bond=1, share=0, indifferent=0.5
+  
+  if (share_type == "good") {
+    if (ai_rec == "share") {
+      return(1.0)
+    } else if (ai_rec == "indifferent") {
+      return(0.5)
+    } else { # bond
+      return(0.0)
+    }
+  } else { # bad
+    if (ai_rec == "bond") {
+      return(1.0)
+    } else if (ai_rec == "indifferent") {
+      return(0.5)
+    } else { # share
+      return(0.0)
+    }
+  }
+}
+
+measure_ex_post_payoff <- function(ai_rec, outcome) {
+  # 3) Payoff-based ex-post:
+  #    If outcome='high' => share=1, bond=0, indifferent=0.5
+  #    If outcome='low'  => bond=1, share=0, indifferent=0.5
+  
+  if (outcome == "high") {
+    if (ai_rec == "share") {
+      return(1.0)
+    } else if (ai_rec == "bond") {
+      return(0.0)
+    } else { # indifferent
+      return(0.5)
+    }
+  } else { # 'low'
+    if (ai_rec == "bond") {
+      return(1.0)
+    } else if (ai_rec == "share") {
+      return(0.0)
+    } else {
+      return(0.5)
+    }
+  }
+}
+```
+
+```{r accuracy-calculations}
+# Calculate all accuracy metrics for an AI recommendation
+calculate_accuracy_metrics <- function(ai_rec, true_posterior, true_share_type, 
+                                      outcome, ev_optimal, config = DEFAULT_CONFIG) {
+  # Calculate all three accuracy metrics for an AI recommendation
+  #
+  # Args:
+  #   ai_rec: AI recommendation ('share', 'bond', or 'indifferent')
+  #   true_posterior: True Bayesian posterior probability of good share
+  #   true_share_type: Actual share type ('good' or 'bad')
+  #   outcome: Actual outcome ('high' or 'low')
+  #   ev_optimal: Statistically optimal decision ('share', 'bond', or 'indifferent')
+  #   config: Simulation configuration parameters
+  #
+  # Returns:
+  #   List containing all three accuracy metrics
+  
+  # 1. Ex-ante accuracy (statistical optimality)
+  ex_ante <- measure_ex_ante_correctness(ai_rec, true_posterior, config)
+  
+  # 2. Ex-post type accuracy (share-type correctness)
+  ex_post_type <- measure_ex_post_share_type(ai_rec, true_share_type)
+  
+  # 3. Ex-post payoff accuracy (outcome-based)
+  ex_post_payoff <- measure_ex_post_payoff(ai_rec, outcome)
+  
+  return(list(
+    ex_ante = ex_ante,
+    ex_post_type = ex_post_type,
+    ex_post_payoff = ex_post_payoff
+  ))
+}
+
+# Correctness measures excluding when equal EV
+measure_ex_ante_forced_choice <- function(ai_rec, true_bayes_post, config) {
+  # Ex-Ante correctness excluding EV ties
+  #
+  # Args:
+  #   ai_rec: AI recommendation
+  #   true_bayes_post: True Bayesian posterior
+  #   config: Simulation configuration
+  #
+  # Returns:
+  #   List with accuracy and should_include flag
+  
+  ev_share <- calculate_expected_return(true_bayes_post, config)
+  
+  # Check if it's a tie (EV equal to bond payoff)
+  is_tie <- abs(ev_share - config$bond_payoff) < 1e-10
+  
+  # If this is a tie, exclude this case
+  if (is_tie) {
+    return(list(accuracy = 0.0, should_include = FALSE))
+  }
+  
+  # Otherwise, standard scoring
+  if (ev_share > config$bond_payoff) {
+    accuracy <- if(ai_rec == "share") 1.0 else 0.0
+  } else { # ev_share < config$bond_payoff
+    accuracy <- if(ai_rec == "bond") 1.0 else 0.0
+  }
+  
+  return(list(accuracy = accuracy, should_include = TRUE))
+}
+```
+
+### Simulation analysis
+
+This section defines functions for running the simulations and aggregating the results:
+
+- `run_simulation`: Runs a single simulation of the investment task for a given prior probability (`p`). It simulates outcomes, calculates the correct decision, tracks the AI recommendations, and calculates accuracy metrics.
+- `run_all_simulations`: Runs simulations for all prior probabilities (`p`) and aggregates the results across multiple simulations.
+
+```{r simulation-runner-functions}
+# Simulation Runner Functions
+
+run_simulation <- function(p, sim_id, config) {
+  # Run a single simulation of the investment task
+  #
+  # Args:
+  #   p: Prior probability of good share
+  #   sim_id: Simulation ID
+  #   config: Simulation configuration parameters
+  #
+  # Returns:
+  #   List containing:
+  #   - ai_metrics: List of AI performance metrics
+  #   - detailed_data: Dataframe of detailed trial data
+  
+  # Determine if the share is good or bad based on prior probability
+  share_type <- if(runif(1) < p) "good" else "bad"
+  
+  # Simulate outcomes for all trials
+  outcomes <- simulate_outcomes(share_type, config)
+  
+  # Get the correct decision based on the true share type
+  correct_decision <- get_correct_decision(share_type, config)
+  
+  # Track recommendations and metrics for each AI type
+  ai_metrics <- list()
+  for (ai_type in config$ai_types) {
+    ai_metrics[[ai_type]] <- list(
+      ex_ante = 0,
+      ex_post_type = 0,
+      ex_post_payoff = 0,
+      forced_correct = 0,
+      forced_type_correct = 0,
+      forced_payoff_correct = 0,
+      forced_total = 0
+    )
+  }
+  
+  total_rows <- config$num_trials * length(config$ai_types)
+  detailed_data <- data.frame(
+    sim_id = numeric(total_rows),
+    prior = numeric(total_rows),
+    trial = numeric(total_rows),
+    ai_type = character(total_rows),
+    true_share_type = character(total_rows),
+    outcome = character(total_rows),
+    ai_rec = character(total_rows),
+    ev_optimal = character(total_rows),
+    ev_accuracy = numeric(total_rows),
+    rec_accuracy = numeric(total_rows),
+    outcome_accuracy = numeric(total_rows),
+    forced_accuracy = numeric(total_rows),
+    is_ev_tie = logical(total_rows),
+    stringsAsFactors = FALSE
+  )
+  
+  row_index <- 1
+  
+  # Simulate AI recommendations at each trial
+  for (trial in 1:config$num_trials) {
+    # Get outcomes observed so far (excluding current trial)
+    observed_outcomes <- if(trial > 1) outcomes[1:(trial-1)] else character(0)
+    current_outcome <- outcomes[trial]
+    
+    # Get true Bayesian posterior for EV measure
+    true_posterior <- calculate_posterior("perfect", p, observed_outcomes, trial-1, config)
+    
+    # Calculate expected return based on true posterior
+    expected_return <- calculate_expected_return(true_posterior, config)
+    
+    # Determine optimal decision based on expected return
+    ev_optimal_decision <- if(expected_return > config$bond_payoff) {
+      "share"
+    } else if(expected_return < config$bond_payoff) {
+      "bond"
+    } else {
+      "indifferent"
+    }
+    
+    # For each AI type, get recommendation and measure correctness
+    for (ai_type in config$ai_types) {
+      ai_rec <- get_ai_recommendation(ai_type, p, observed_outcomes, trial-1, config)
+      
+      # Ex-Ante correctness (match with statistical optimality)
+      ex_ante_correct <- measure_ex_ante_correctness(ai_rec, true_posterior, config)
+      
+      # Ex-Post Type correctness (match with true share type)
+      ex_post_type_correct <- measure_ex_post_share_type(ai_rec, share_type)
+      
+      # Ex-Post Payoff correctness (match with actual outcome)
+      ex_post_payoff_correct <- measure_ex_post_payoff(ai_rec, current_outcome)
+      
+      # Forced choice Ex-Ante correctness (excluding ties)
+      is_ev_tie <- abs(expected_return - config$bond_payoff) < 1e-10
+      
+      if (is_ev_tie) {
+        forced_correct <- 0
+        should_include <- FALSE
+      } else {
+        # Standard scoring
+        if (expected_return > config$bond_payoff) {
+          forced_correct <- if(ai_rec == "share") 1.0 else 0.0
+        } else { # expected_return < config$bond_payoff
+          forced_correct <- if(ai_rec == "bond") 1.0 else 0.0
+        }
+        should_include <- TRUE
+      }
+      
+      # Add to metrics
+      ai_metrics[[ai_type]]$ex_ante <- ai_metrics[[ai_type]]$ex_ante + ex_ante_correct
+      ai_metrics[[ai_type]]$ex_post_type <- ai_metrics[[ai_type]]$ex_post_type + ex_post_type_correct
+      ai_metrics[[ai_type]]$ex_post_payoff <- ai_metrics[[ai_type]]$ex_post_payoff + ex_post_payoff_correct
+      
+      # Only include in forced choice metric if it's not a tie
+      if (should_include) {
+        ai_metrics[[ai_type]]$forced_correct <- ai_metrics[[ai_type]]$forced_correct + forced_correct
+        ai_metrics[[ai_type]]$forced_type_correct <- ai_metrics[[ai_type]]$forced_type_correct + ex_post_type_correct
+        ai_metrics[[ai_type]]$forced_payoff_correct <- ai_metrics[[ai_type]]$forced_payoff_correct + ex_post_payoff_correct
+        ai_metrics[[ai_type]]$forced_total <- ai_metrics[[ai_type]]$forced_total + 1
+      }
+      
+      # Record detailed data for this trial
+      detailed_data[row_index, ] <- list(
+        sim_id = sim_id,
+        prior = p,
+        trial = trial,
+        ai_type = ai_type,
+        true_share_type = share_type,
+        outcome = current_outcome,
+        ai_rec = ai_rec,
+        ev_optimal = ev_optimal_decision,
+        ev_accuracy = ex_ante_correct,
+        rec_accuracy = ex_post_type_correct,
+        outcome_accuracy = ex_post_payoff_correct,
+        forced_accuracy = if(should_include) forced_correct else NA,
+        is_ev_tie = !should_include
+      )
+      
+      row_index <- row_index + 1
+    }
+  }
+  
+  # Convert trial sums to averages
+  for (ai_type in config$ai_types) {
+    for (metric in c("ex_ante", "ex_post_type", "ex_post_payoff")) {
+      ai_metrics[[ai_type]][[metric]] <- ai_metrics[[ai_type]][[metric]] / config$num_trials
+    }
+  }
+  
+  return(list(ai_metrics = ai_metrics, detailed_data = detailed_data))
+}
+
+run_all_simulations <- function(config, num_simulations_to_run = NULL) {
+  # Run simulations for all prior probabilities
+  #
+  # Args:
+  #   config: Simulation configuration parameters
+  #   num_simulations_to_run: Optional override for number of simulations
+  #
+  # Returns:
+  #   List containing:
+  #   - standard_results: Standard results dictionary
+  #   - forced_results: Forced choice results dictionary
+  #   - trial_df: DataFrame with detailed trial data
+  
+  if (is.null(num_simulations_to_run)) {
+    num_simulations_to_run <- config$num_simulations
+  }
+  
+  standard_results <- list()
+  forced_results <- list()
+  all_detailed_data <- data.frame()
+  
+  for (p_idx in seq_along(config$p)) {
+    p <- config$p[p_idx]
+    cat(sprintf("Processing prior %d of %d: p = %f\n", p_idx, length(config$p), p))
+
+    # Vectorized outcome generation
+    num_sims <- if (is.null(num_simulations_to_run)) config$num_simulations else num_simulations_to_run
+    share_flags <- runif(num_sims) < p
+    raw_outcomes <- matrix(
+      rbinom(num_sims * config$num_trials, 1, config$q),
+      ncol = config$num_trials,
+      byrow = TRUE
+    )
+    # outcomes_mat: 1 = "high" for shares; invert rows for bad shares
+    outcomes_mat <- raw_outcomes
+    if (any(!share_flags)) {
+      outcomes_mat[!share_flags, ] <- 1 - outcomes_mat[!share_flags, ]
+    }
+
+
+    # Initialize accumulators for this prior
+    sums <- list()
+    for (ai_type in config$ai_types) {
+      sums[[ai_type]] <- list(
+        ex_ante = 0.0,
+        ex_post_type = 0.0,
+        ex_post_payoff = 0.0,
+        forced_correct = 0.0,
+        forced_type_correct = 0.0,
+        forced_payoff_correct = 0.0,
+        forced_total = 0.0
+      )
+    }
+
+    # Run simulations for this prior probability
+    for (sim_id in 1:num_sims) {
+      if (sim_id %% 100 == 0) {
+        cat(sprintf("  Simulation %d of %d (%.1f%%)\n", 
+                   sim_id, num_sims, sim_id/num_sims*100))
+      }
+
+      # Use precomputed vectors
+      share_type <- if (share_flags[sim_id]) "good" else "bad"
+      outcomes <- ifelse(outcomes_mat[sim_id,] == 1, "high", "low")
+
+      # Get the correct decision based on the true share type
+      correct_decision <- get_correct_decision(share_type, config)
+
+      # Track recommendations and metrics for each AI type
+      ai_metrics <- list()
+      for (ai_type in config$ai_types) {
+        ai_metrics[[ai_type]] <- list(
+          ex_ante = 0,
+          ex_post_type = 0,
+          ex_post_payoff = 0,
+          forced_correct = 0,
+          forced_type_correct = 0,
+          forced_payoff_correct = 0,
+          forced_total = 0
+        )
+      }
+
+      total_rows <- config$num_trials * length(config$ai_types)
+      detailed_data <- data.frame(
+        sim_id = numeric(total_rows),
+        prior = numeric(total_rows),
+        trial = numeric(total_rows),
+        ai_type = character(total_rows),
+        true_share_type = character(total_rows),
+        outcome = character(total_rows),
+        ai_rec = character(total_rows),
+        ev_optimal = character(total_rows),
+        ev_accuracy = numeric(total_rows),
+        rec_accuracy = numeric(total_rows),
+        outcome_accuracy = numeric(total_rows),
+        forced_accuracy = numeric(total_rows),
+        is_ev_tie = logical(total_rows),
+        stringsAsFactors = FALSE
+      )
+
+      row_index <- 1
+
+      # Simulate AI recommendations at each trial
+      for (trial in 1:config$num_trials) {
+        # Get outcomes observed so far (excluding current trial)
+        observed_outcomes <- if(trial > 1) outcomes[1:(trial-1)] else character(0)
+        current_outcome <- outcomes[trial]
+
+        # Get true Bayesian posterior for EV measure
+        true_posterior <- calculate_posterior("perfect", p, observed_outcomes, trial-1, config)
+
+        # Calculate expected return based on true posterior
+        expected_return <- calculate_expected_return(true_posterior, config)
+
+        # Determine optimal decision based on expected return
+        ev_optimal_decision <- if(expected_return > config$bond_payoff) {
+          "share"
+        } else if(expected_return < config$bond_payoff) {
+          "bond"
+        } else {
+          "indifferent"
+        }
+
+        # For each AI type, get recommendation and measure correctness
+        for (ai_type in config$ai_types) {
+          ai_rec <- get_ai_recommendation(ai_type, p, observed_outcomes, trial-1, config)
+
+          # Ex-Ante correctness (match with statistical optimality)
+          ex_ante_correct <- measure_ex_ante_correctness(ai_rec, true_posterior, config)
+
+          # Ex-Post Type correctness (match with true share type)
+          ex_post_type_correct <- measure_ex_post_share_type(ai_rec, share_type)
+
+          # Ex-Post Payoff correctness (match with actual outcome)
+          ex_post_payoff_correct <- measure_ex_post_payoff(ai_rec, current_outcome)
+
+          # Forced choice Ex-Ante correctness (excluding ties)
+          is_ev_tie <- abs(expected_return - config$bond_payoff) < 1e-10
+
+          if (is_ev_tie) {
+            forced_correct <- 0
+            should_include <- FALSE
+          } else {
+            # Standard scoring
+            if (expected_return > config$bond_payoff) {
+              forced_correct <- if(ai_rec == "share") 1.0 else 0.0
+            } else { # expected_return < config$bond_payoff
+              forced_correct <- if(ai_rec == "bond") 1.0 else 0.0
+            }
+            should_include <- TRUE
+          }
+
+          # Add to metrics
+          ai_metrics[[ai_type]]$ex_ante <- ai_metrics[[ai_type]]$ex_ante + ex_ante_correct
+          ai_metrics[[ai_type]]$ex_post_type <- ai_metrics[[ai_type]]$ex_post_type + ex_post_type_correct
+          ai_metrics[[ai_type]]$ex_post_payoff <- ai_metrics[[ai_type]]$ex_post_payoff + ex_post_payoff_correct
+
+          # Only include in forced choice metric if it's not a tie
+          if (should_include) {
+            ai_metrics[[ai_type]]$forced_correct <- ai_metrics[[ai_type]]$forced_correct + forced_correct
+            ai_metrics[[ai_type]]$forced_type_correct <- ai_metrics[[ai_type]]$forced_type_correct + ex_post_type_correct
+            ai_metrics[[ai_type]]$forced_payoff_correct <- ai_metrics[[ai_type]]$forced_payoff_correct + ex_post_payoff_correct
+            ai_metrics[[ai_type]]$forced_total <- ai_metrics[[ai_type]]$forced_total + 1
+          }
+
+          # Record detailed data for this trial
+          detailed_data[row_index, ] <- list(
+            sim_id = sim_id,
+            prior = p,
+            trial = trial,
+            ai_type = ai_type,
+            true_share_type = share_type,
+            outcome = current_outcome,
+            ai_rec = ai_rec,
+            ev_optimal = ev_optimal_decision,
+            ev_accuracy = ex_ante_correct,
+            rec_accuracy = ex_post_type_correct,
+            outcome_accuracy = ex_post_payoff_correct,
+            forced_accuracy = if(should_include) forced_correct else NA,
+            is_ev_tie = !should_include
+          )
+
+          row_index <- row_index + 1
+        }
+      }
+
+      # Convert trial sums to averages
+      for (ai_type in config$ai_types) {
+        for (metric in c("ex_ante", "ex_post_type", "ex_post_payoff")) {
+          ai_metrics[[ai_type]][[metric]] <- ai_metrics[[ai_type]][[metric]] / config$num_trials
+        }
+      }
+
+      # Collect detailed data
+      all_detailed_data <- rbind(all_detailed_data, detailed_data)
+
+      # Aggregate results
+      for (ai_type in config$ai_types) {
+        for (metric in names(sums[[ai_type]])) {
+          sums[[ai_type]][[metric]] <- sums[[ai_type]][[metric]] + ai_metrics[[ai_type]][[metric]]
+        }
+      }
+    }
+    
+    # Process standard results
+    standard_results[[as.character(p)]] <- list()
+    for (ai_type in config$ai_types) {
+      standard_results[[as.character(p)]][[ai_type]] <- list(
+        ex_ante = sums[[ai_type]]$ex_ante / num_simulations_to_run,
+        ex_post_type = sums[[ai_type]]$ex_post_type / num_simulations_to_run, 
+        ex_post_payoff = sums[[ai_type]]$ex_post_payoff / num_simulations_to_run
+      )
+    }
+    
+    # Process forced choice results separately
+    forced_results[[as.character(p)]] <- list()
+    for (ai_type in config$ai_types) {
+      total_forced <- sums[[ai_type]]$forced_total
+      if (total_forced > 0) {
+        ex_ante_accuracy <- sums[[ai_type]]$forced_correct / total_forced
+        ex_post_type_accuracy <- sums[[ai_type]]$forced_type_correct / total_forced
+        ex_post_payoff_accuracy <- sums[[ai_type]]$forced_payoff_correct / total_forced
+        pct_included <- total_forced / (num_simulations_to_run * config$num_trials) * 100
+      } else {
+        ex_ante_accuracy <- NaN
+        ex_post_type_accuracy <- NaN
+        ex_post_payoff_accuracy <- NaN
+        pct_included <- 0
+      }
+      
+      # Format exactly like standard_results to work with existing plot function
+      forced_results[[as.character(p)]][[ai_type]] <- list(
+        ex_ante = ex_ante_accuracy,
+        ex_post_type = ex_post_type_accuracy,
+        ex_post_payoff = ex_post_payoff_accuracy,
+        pct_included = pct_included
+      )
+    }
+  }
+  
+  return(list(
+    standard = standard_results,
+    forced = forced_results,
+    trial_df = all_detailed_data
+  ))
+}
+```
+
+## Analytical solution
+
+This section provides the functions for the analytical solution. It comprises the following functions:
+
+- `seq_probability`: Calculates the probability of a specific sequence of outcomes given the share type (good or bad) and the prior probability.
+- `run_all_measures`: Runs the analytical solution for all measures (ex-ante, ex-post type, and ex-post payoff) across all prior probabilities and outcomes.
+
+```{r analytical-calculations}
+
+##########################
+# Probability of a sequence
+##########################
+
+seq_probability <- function(sequence, share_type, config) {
+  # Probability of seeing 'sequence' if the share is good or bad.
+  #
+  # Args:
+  #   sequence: Vector of 'high' or 'low' outcomes
+  #   share_type: 'good' or 'bad'
+  #   config: Simulation configuration parameters
+  #
+  # Returns:
+  #   Probability of the sequence occurring
+  
+  # Convert sequence to binary vector (1 for high, 0 for low)
+  if (is.numeric(sequence)) {
+    # If already numeric, use it directly
+    seq_arr <- sequence
+  } else {
+    # Convert vector of strings to binary vector
+    seq_arr <- ifelse(sequence == "high", 1, 0)
+  }
+  
+  # Count high outcomes
+  nH <- sum(seq_arr)
+  # Count low outcomes
+  nL <- length(seq_arr) - nH
+  
+  if (share_type == "good") {
+    return((config$q ^ nH) * ((1.0 - config$q) ^ nL))
+  } else {
+    return(((1.0 - config$q) ^ nH) * (config$q ^ nL))
+  }
+}
+
+##########################
+# Main enumeration function
+##########################
+
+run_all_measures <- function(config) {
+  # Enumerates all 2^num_trials sequences, simulates each AI's picks,
+  # and calculates three measures of accuracy.
+  #
+  # Args:
+  #   config: Simulation configuration parameters
+  #
+  # Returns:
+  #   List with:
+  #   - standard_results: Standard results list
+  #   - forced_results: Forced choice results list
+  
+  # Generate all possible binary sequences
+  binary_sequences <- expand.grid(replicate(config$num_trials, c(0, 1), simplify = FALSE))
+  
+  # Convert to matrix for easier processing
+  sequences <- as.matrix(binary_sequences)
+  
+  # Results lists
+  standard_results <- list()
+  forced_results <- list()
+  
+  # For each prior probability
+  for (p in config$p) {
+    cat(sprintf("Calculating analytical solution for p=%s\n", p))
+    
+    # Pre-calculate sequence high/low counts all at once
+    high_counts <- rowSums(sequences)
+    low_counts <- config$num_trials - high_counts
+    
+    # Calculate all probabilities at once
+    probs_good <- (config$q ^ high_counts) * ((1-config$q) ^ low_counts)
+    probs_bad <- ((1-config$q) ^ high_counts) * (config$q ^ low_counts)
+    
+    # Convert sequences to string representations (vectorized)
+    seq_strings <- lapply(1:nrow(sequences), function(i) {
+      ifelse(sequences[i,] == 1, "high", "low")
+    })
+    
+    # Initialize measures for each AI type (standard measures)
+    measure_sums <- list()
+    for (ai_type in config$ai_types) {
+      measure_sums[[ai_type]] <- list(
+        ex_ante = 0.0,
+        ex_post_type = 0.0,
+        ex_post_payoff = 0.0
+      )
+    }
+    
+    # Initialize forced choice measures
+    forced_sums <- list()
+    for (ai_type in config$ai_types) {
+      forced_sums[[ai_type]] <- list(
+        ex_ante = 0.0,
+        ex_post_type = 0.0,
+        ex_post_payoff = 0.0,
+        total_cases = 0.0,
+        total_weight = 0.0
+      )
+    }
+    
+    # For each possible sequence
+    total_seq <- nrow(sequences)
+    for (i in 1:total_seq) {
+      # Print progress indicator
+      if (i %% 10 == 0 || i == 1 || i == total_seq) {
+        cat(sprintf("  Processing sequence %d of %d (%.1f%%)\n", i, total_seq, i/total_seq*100))
+      }
+      
+      # Get current sequence
+      seq <- sequences[i,]
+      seq_str <- seq_strings[[i]]
+      
+      # Probability weights
+      prob_good <- probs_good[i]
+      prob_bad <- probs_bad[i]
+      seq_weight <- p * prob_good + (1.0 - p) * prob_bad
+      
+      # Skip sequences with near-zero probability to save computation
+      if (seq_weight < 1e-10) {
+        next
+      }
+      
+      # For each AI type
+      for (ai_type in config$ai_types) {
+        # Tracking correctness measures
+        correct_ex_ante <- 0.0
+        correct_ex_post_good <- 0.0
+        correct_ex_post_bad <- 0.0
+        correct_ex_post_payoff <- 0.0
+        
+        # Forced choice measures
+        forced_ex_ante <- 0.0
+        forced_ex_post_type <- 0.0
+        forced_ex_post_payoff <- 0.0
+        forced_cases <- 0.0
+        
+        # Pre-allocate observed vector for better performance
+        observed <- character(0)
+        
+        # Simulate the AI observing outcomes one by one
+        for (t in 1:length(seq_str)) {
+          outcome <- seq_str[t]
+          
+          # Get AI recommendation based on observations so far
+          current_trial <- length(observed)
+          ai_rec <- get_ai_recommendation(ai_type, p, observed, current_trial, config)
+          
+          # Calculate true Bayesian posterior for EV measure
+          true_posterior_good <- calculate_posterior("perfect", p, observed, current_trial, config)
+          
+          # Calculate expected return for checking EV ties
+          expected_return <- calculate_expected_return(true_posterior_good, config)
+          is_ev_tie <- abs(expected_return - config$bond_payoff) < 1e-10
+          
+          # 1) Ex-Ante correctness
+          ex_ante_correct <- measure_ex_ante_correctness(ai_rec, true_posterior_good, config)
+          correct_ex_ante <- correct_ex_ante + ex_ante_correct
+          
+          # 2) Ex-Post (share-type) correctness
+          ex_post_good_correct <- measure_ex_post_share_type(ai_rec, "good")
+          ex_post_bad_correct <- measure_ex_post_share_type(ai_rec, "bad")
+          correct_ex_post_good <- correct_ex_post_good + ex_post_good_correct
+          correct_ex_post_bad <- correct_ex_post_bad + ex_post_bad_correct
+          
+          # 3) Ex-Post (payoff-based) correctness
+          ex_post_payoff_correct <- measure_ex_post_payoff(ai_rec, outcome)
+          correct_ex_post_payoff <- correct_ex_post_payoff + ex_post_payoff_correct
+          
+          # Forced choice metrics - only count when not a tie
+          if (!is_ev_tie) {
+            forced_cases <- forced_cases + 1
+            forced_ex_ante <- forced_ex_ante + ex_ante_correct
+            forced_ex_post_type <- forced_ex_post_type + 
+              (p * prob_good * ex_post_good_correct + (1.0 - p) * prob_bad * ex_post_bad_correct) / seq_weight
+            forced_ex_post_payoff <- forced_ex_post_payoff + ex_post_payoff_correct
+          }
+          
+          # Update observed outcomes for next trial
+          observed <- c(observed, outcome)
+        }
+        
+        # Update measure sums with sequence-weighted correctness
+        measure_sums[[ai_type]]$ex_ante <- 
+          measure_sums[[ai_type]]$ex_ante + correct_ex_ante * seq_weight
+        
+        measure_sums[[ai_type]]$ex_post_type <- 
+          measure_sums[[ai_type]]$ex_post_type + 
+          (correct_ex_post_good * (p * prob_good) + correct_ex_post_bad * ((1.0 - p) * prob_bad))
+        
+        measure_sums[[ai_type]]$ex_post_payoff <- 
+          measure_sums[[ai_type]]$ex_post_payoff + correct_ex_post_payoff * seq_weight
+        
+        # Update forced choice measures if we had any non-tie cases
+        if (forced_cases > 0) {
+          # Weight by sequence probability
+          forced_sums[[ai_type]]$ex_ante <- 
+            forced_sums[[ai_type]]$ex_ante + forced_ex_ante * seq_weight
+          
+          forced_sums[[ai_type]]$ex_post_type <- 
+            forced_sums[[ai_type]]$ex_post_type + forced_ex_post_type * seq_weight
+          
+          forced_sums[[ai_type]]$ex_post_payoff <- 
+            forced_sums[[ai_type]]$ex_post_payoff + forced_ex_post_payoff * seq_weight
+          
+          forced_sums[[ai_type]]$total_cases <- 
+            forced_sums[[ai_type]]$total_cases + forced_cases * seq_weight
+          
+          forced_sums[[ai_type]]$total_weight <- 
+            forced_sums[[ai_type]]$total_weight + config$num_trials * seq_weight
+        }
+      }
+    }
+    
+    # Process results for this prior probability
+    standard_for_p <- list()
+    forced_for_p <- list()
+    
+    for (ai_type in config$ai_types) {
+      # Convert sums to fractions by dividing by number of trials
+      standard_for_p[[ai_type]] <- list(
+        ex_ante = measure_sums[[ai_type]]$ex_ante / config$num_trials,
+        ex_post_type = measure_sums[[ai_type]]$ex_post_type / config$num_trials,
+        ex_post_payoff = measure_sums[[ai_type]]$ex_post_payoff / config$num_trials
+      )
+      
+      # Calculate forced choice metrics
+      total_forced_cases <- forced_sums[[ai_type]]$total_cases
+      if (total_forced_cases > 0) {
+        forced_for_p[[ai_type]] <- list(
+          ex_ante = forced_sums[[ai_type]]$ex_ante / total_forced_cases,
+          ex_post_type = forced_sums[[ai_type]]$ex_post_type / total_forced_cases,
+          ex_post_payoff = forced_sums[[ai_type]]$ex_post_payoff / total_forced_cases,
+          pct_included = (total_forced_cases / forced_sums[[ai_type]]$total_weight) * 100
+        )
+      } else {
+        forced_for_p[[ai_type]] <- list(
+          ex_ante = NaN,
+          ex_post_type = NaN,
+          ex_post_payoff = NaN,
+          pct_included = 0
+        )
+      }
+    }
+    
+    standard_results[[as.character(p)]] <- standard_for_p
+    forced_results[[as.character(p)]] <- forced_for_p
+  }
+  
+  return(list(standard_results = standard_results, 
+              forced_results = forced_results))
+}
+
+```
+
+### Visualisation and reporting functions
+
+This section defines functions for creating summary visualisations of the results:
+
+- `create_performance_summary`: Creates a bar chart comparing the overall performance of all AI models using both traditional and EV-based accuracy measures.
+- `plot_performance_by_prior`: Creates bar charts showing the performance of AI models across different prior probabilities, using both traditional and EV-based accuracy measures.
+- `create_dynamic_x_ticks`: Helper for dynamic x-ticks in plots.
+- `plot_accuracy_by_trial`: Creates a plot visualizing the accuracy of AI models across trials for different prior probabilities.
+- `plot_combined_accuracy_by_trial`: Creates a combined plot visualizing the accuracy of AI models across trials for different prior probabilities.
+- `plot_analytical_performance_by_prior`: Creates a plot visualizing the analytical performance of AI models across different prior probabilities.
+- `create_table_from_results` takes the results dictionaries (containing accuracy data) and a `table_type` parameter to create formatted tables summarizing the AI models' performance. It takes three parameters and creates either a summary table (overall AI performance) or a prior probability table (performance for each prior).
+    - `results`: A dictionary containing the traditional accuracy results from the simulations.
+    - `ev_results`: A dictionary containing the expected value (EV)-based accuracy results from the simulations.
+    - `table_type`: A string indicating the type of table to generate ("summary" or "prior").
+- `plot_trial_by_trial_performance`: Creates a plot visualizing the traditional accuracy of AI models across trials for different prior probabilities.
+- `display_forced_choice_results`: Displays the forced choice results in a formatted table.
+
+```{r visualisation-functions}
+# Visualisation Functions
+
+# Create a performance summary chart comparing all AI models
+create_performance_summary <- function(results, config) {
+  # Create a clear performance summary chart comparing all AI models
+  
+  # Calculate average accuracy across all priors for all measures
+  ex_ante_accuracy <- list()      # EV-based
+  ex_post_type_accuracy <- list() # Traditional
+  ex_post_payoff_accuracy <- list()
+  
+  for (ai_type in config$ai_types) {
+    # Calculate average accuracy across all priors
+    ex_ante_sum <- sum(sapply(config$p, function(p) results[[as.character(p)]][[ai_type]]$ex_ante))
+    ex_post_type_sum <- sum(sapply(config$p, function(p) results[[as.character(p)]][[ai_type]]$ex_post_type))
+    ex_post_payoff_sum <- sum(sapply(config$p, function(p) results[[as.character(p)]][[ai_type]]$ex_post_payoff))
+    
+    # Average across priors
+    ex_ante_accuracy[[ai_type]] <- ex_ante_sum / length(config$p)
+    ex_post_type_accuracy[[ai_type]] <- ex_post_type_sum / length(config$p)
+    ex_post_payoff_accuracy[[ai_type]] <- ex_post_payoff_sum / length(config$p)
+  }
+  
+  # Create dataframe for plotting
+  summary_data <- data.frame()
+  for (ai_type in config$ai_types) {
+    new_rows <- data.frame(
+      ai_type = c(ai_type, ai_type, ai_type),
+      accuracy_measure = c("Ex-Ante", "Ex-Post Type", "Ex-Post Payoff"),
+      accuracy = c(ex_ante_accuracy[[ai_type]], 
+                  ex_post_type_accuracy[[ai_type]], 
+                  ex_post_payoff_accuracy[[ai_type]])
+    )
+    summary_data <- rbind(summary_data, new_rows)
+  }
+  
+  # Capitalize AI type for display
+  summary_data$ai_type <- str_to_title(summary_data$ai_type)
+  
+  # Set custom ordering to ensure perfect first, conservative next, naive last
+  ordered_ai_types <- str_to_title(config$ai_types)
+  # Move perfect, conservative and naive to specific positions
+  perfect_idx <- which(ordered_ai_types == "Perfect")
+  conservative_idx <- which(ordered_ai_types == "Conservative")
+  naive_idx <- which(ordered_ai_types == "Naive prior")
+  
+  if(length(perfect_idx) > 0) {
+    ordered_ai_types <- c("Perfect", ordered_ai_types[-perfect_idx])
+  }
+  if(length(conservative_idx) > 0 && conservative_idx != 2) {
+    # Remove conservative from current position
+    temp_order <- ordered_ai_types[ordered_ai_types != "Conservative"]
+    # Re-insert at position 2 or at the end if there's only one item
+    if(length(temp_order) >= 1) {
+      ordered_ai_types <- c(temp_order[1], "Conservative", temp_order[-1])
+    } else {
+      ordered_ai_types <- c(temp_order, "Conservative")
+    }
+  }
+  if(length(naive_idx) > 0) {
+    ordered_ai_types <- c(ordered_ai_types[ordered_ai_types != "Naive prior"], "Naive prior")
+  }
+  
+  summary_data$ai_type <- factor(summary_data$ai_type, levels = ordered_ai_types)
+  
+  # Define correct order for accuracy measures
+  summary_data$accuracy_measure <- factor(summary_data$accuracy_measure, 
+                                      levels = c("Ex-Ante", "Ex-Post Type", "Ex-Post Payoff"))
+  
+  # Create plot with consistent appearance to Python version
+  plot <- ggplot(summary_data, aes(x = ai_type, y = accuracy, fill = accuracy_measure)) +
+    geom_bar(stat = "identity", position = position_dodge(width = 0.8), width = 0.7) +
+    scale_y_continuous(limits = c(0, 1), 
+                     breaks = seq(0, 1, 0.2),
+                     labels = scales::percent_format()) +
+    scale_fill_manual(values = c(
+      "Ex-Ante" = "#2ecc71",       # Green
+      "Ex-Post Type" = "#3498db",  # Blue
+      "Ex-Post Payoff" = "#e67e22" # Orange
+    )) +
+    labs(
+      title = "AI Performance Comparison",
+      x = "AI Model",
+      y = "Accuracy (%)",
+      fill = "Accuracy Measure"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 14, face = "bold"),
+      axis.title = element_text(size = 12),
+      axis.text = element_text(size = 10),
+      # Move legend to bottom right with smaller size
+      legend.position = c(0.9, 0.08),
+      legend.justification = c(1, 0),
+      legend.box.just = "right",
+      legend.margin = margin(3, 3, 3, 3),
+      legend.title = element_text(size = 6),
+      legend.text = element_text(size = 5),
+      legend.key.size = unit(0.5, "lines"),
+      legend.background = element_rect(fill = "white", color = "gray80"),
+      panel.grid.major.y = element_line(linetype = "dashed", color = "gray80", linewidth = 0.4),
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor = element_blank(),
+      plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")
+    ) +
+    geom_text(aes(label = sprintf("%.1f%%", accuracy * 100)), 
+              position = position_dodge(width = 0.8),
+              vjust = -0.5, 
+              fontface = "bold",
+              size = 3.5)
+  
+  return(plot)
+}
+
+# Plot performance by prior probability
+plot_performance_by_prior <- function(results, config, result_type = "simulation") {
+  # Prepare data for plotting
+  data <- data.frame()
+  
+  for (p in config$p) {
+    for (ai_type in config$ai_types) {
+      ex_ante <- results[[as.character(p)]][[ai_type]]$ex_ante
+      ex_post_type <- results[[as.character(p)]][[ai_type]]$ex_post_type
+      ex_post_payoff <- results[[as.character(p)]][[ai_type]]$ex_post_payoff
+      
+      new_row <- data.frame(
+        Prior_Probability = p,
+        AI_Type = str_to_title(ai_type),
+        Statistical_Optimality = ex_ante,
+        Correct_Predictions = ex_post_type,
+        Payoff_Accuracy = ex_post_payoff
+      )
+      
+      data <- rbind(data, new_row)
+    }
+  }
+  
+  # Set custom ordering to ensure perfect first, conservative next, naive last
+  ordered_ai_types <- str_to_title(config$ai_types)
+  # Move perfect, conservative and naive to specific positions
+  perfect_idx <- which(ordered_ai_types == "Perfect")
+  conservative_idx <- which(ordered_ai_types == "Conservative")
+  naive_idx <- which(ordered_ai_types == "Naive prior")
+  
+  if(length(perfect_idx) > 0) {
+    ordered_ai_types <- c("Perfect", ordered_ai_types[-perfect_idx])
+  }
+  if(length(conservative_idx) > 0 && conservative_idx != 2) {
+    # Remove conservative from current position
+    temp_order <- ordered_ai_types[ordered_ai_types != "Conservative"]
+    # Re-insert at position 2 or at the end if there's only one item
+    if(length(temp_order) >= 1) {
+      ordered_ai_types <- c(temp_order[1], "Conservative", temp_order[-1])
+    } else {
+      ordered_ai_types <- c(temp_order, "Conservative")
+    }
+  }
+  if(length(naive_idx) > 0) {
+    ordered_ai_types <- c(ordered_ai_types[ordered_ai_types != "Naive prior"], "Naive prior")
+  }
+  
+  # Set the AI_Type as a factor with the desired order
+  data$AI_Type <- factor(data$AI_Type, levels = ordered_ai_types)
+  
+  # Define metric names
+  metric_names <- c(
+    "Statistical_Optimality" = "Statistical Optimality",
+    "Correct_Predictions" = "Correct Predictions", 
+    "Payoff_Accuracy" = "Payoff Accuracy"
+  )
+  
+  # Create a separate plot for each metric
+  plot_list <- list()
+  
+  # Color palettes
+  green_palette <- colorRampPalette(c("#b3e6b3", "#1a5e3b"))(length(config$ai_types))
+  blue_palette <- colorRampPalette(c("#deebf7", "#3182bd"))(length(config$ai_types))
+  orange_palette <- colorRampPalette(c("#fee6ce", "#e6550d"))(length(config$ai_types))
+  
+  # Create plots for each metric
+  metrics <- c("Statistical_Optimality", "Correct_Predictions", "Payoff_Accuracy")
+  palettes <- list(green_palette, blue_palette, orange_palette)
+  
+  for (i in 1:length(metrics)) {
+    metric <- metrics[i]
+    palette <- palettes[[i]]
+    
+    # Get data for this metric
+    plot_data <- data[, c("Prior_Probability", "AI_Type", metric)]
+    colnames(plot_data)[3] <- "Value"
+    
+    # Create plot
+    p <- ggplot(plot_data, aes(x = factor(Prior_Probability), y = Value, fill = AI_Type)) +
+      geom_bar(stat = "identity", position = "dodge", alpha = 0.8) +
+      scale_y_continuous(limits = c(0, 1.05), labels = scales::percent_format()) +
+      scale_fill_manual(values = setNames(palette, levels(factor(plot_data$AI_Type)))) +
+      labs(
+        title = metric_names[metric],
+        x = "Prior Probability",
+        y = "Accuracy"
+      ) +
+      theme_minimal() +
+      theme(
+        # Add smaller legend to bottom right of each plot
+        legend.position = c(0.9, 0.08),
+        legend.justification = c(1, 0),
+        legend.background = element_rect(fill = "white", color = "gray80"),
+        legend.margin = margin(2, 2, 2, 2),
+        legend.key.size = unit(0.4, "lines"),
+        legend.title = element_text(size = 6),
+        legend.text = element_text(size = 5),
+        panel.grid.major.y = element_line(linetype = "dashed", color = "gray80"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(size = 12, face = "bold")
+      )
+    
+    plot_list[[metric]] <- p
+  }
+  
+  # Set main title based on result type
+  main_title <- if(result_type == "analytical") {
+    "Analytical AI Performance by Prior Probability"
+  } else if(result_type == "analytical_forced") {
+    "Analytical AI Performance (Excluding EV Ties) by Prior Probability"
+  } else if(result_type == "forced") {
+    "Simulation AI Performance (Excluding EV Ties) by Prior Probability"
+  } else {
+    "Simulation AI Performance by Prior Probability"
+  }
+  
+  # Arrange plots in a grid
+  p <- gridExtra::arrangeGrob(
+    plot_list[["Statistical_Optimality"]],
+    plot_list[["Correct_Predictions"]],
+    plot_list[["Payoff_Accuracy"]],
+    ncol = 3,
+    top = main_title
+    )
+  grid::grid.draw(p)
+  return(invisible(p))
+}
+
+# Dynamic grid function for plotting
+create_dynamic_x_ticks <- function(max_trials) {
+  # Create dynamic x-ticks based on the number of trials:
+  # - If max_trials <= 11: Show grid lines for all trials
+  # - If max_trials > 11: Show grid lines for odd-numbered trials plus the last trial if even
+  #
+  # Args:
+  #   max_trials: Maximum number of trials
+  #
+  # Returns:
+  #   Vector of x-tick positions
+  
+  if (max_trials <= 11) {
+    # If 11 or fewer trials, show all
+    x_ticks <- 1:max_trials
+  } else {
+    # For more than 11 trials, show odd-numbered trials
+    x_ticks <- seq(1, max_trials, by = 2)
+    
+    # Always include the last trial if it's not already included (if it's even)
+    if (max_trials %% 2 == 0 && !(max_trials %in% x_ticks)) {
+      x_ticks <- c(x_ticks, max_trials)
+    }
+  }
+  
+  return(sort(x_ticks))
+}
+
+# Plot_accuracy_by_trial function
+plot_accuracy_by_trial <- function(trial_df, accuracy_measure = "ev_accuracy",
+                                  title_prefix = "AI", config = NULL) {
+  # Plot accuracy across trials for all AI types with dynamic grid
+  #
+  # Args:
+  #   trial_df: DataFrame with trial-by-trial data
+  #   accuracy_measure: Column name for the accuracy measure to plot
+  #   title_prefix: Prefix for the plot title
+  #   config: Simulation configuration parameters
+  #
+  # Returns:
+  #   ggplot object
+  
+  # Group by prior, trial, and AI type to get average performance
+  grouped <- trial_df %>%
+    group_by(prior, trial, ai_type) %>%
+    summarize(mean_accuracy = mean(!!sym(accuracy_measure)), .groups = "drop")
+  
+  # Determine the max number of trials
+  max_trials <- max(trial_df$trial)
+  
+  # Create dynamic x-ticks
+  x_ticks <- create_dynamic_x_ticks(max_trials)
+  
+  # Map accuracy measures to readable labels
+  measure_labels <- list(
+    ev_accuracy = "Statistical Optimality",
+    rec_accuracy = "Ex-Post Type Accuracy",
+    outcome_accuracy = "Ex-Post Payoff Accuracy"
+  )
+  
+  if (!is.null(measure_labels[[accuracy_measure]])) {
+    measure_label <- measure_labels[[accuracy_measure]]
+  } else {
+    measure_label <- gsub("_", " ", str_to_title(accuracy_measure))
+  }
+  
+  # Create plot 
+  plot <- ggplot(grouped, aes(x = trial, y = mean_accuracy, color = ai_type, group = ai_type)) +
+    geom_line(linewidth = 1) +
+    geom_point(size = 2.5) +
+    scale_color_brewer(palette = "Set1") +
+    scale_x_continuous(breaks = x_ticks) +
+    scale_y_continuous(limits = c(0, 1.05)) +
+    labs(
+      title = paste(title_prefix, measure_label, "Across Trials"),
+      x = "Trial Number",
+      y = measure_label,
+      color = "AI Type"
+    ) +
+    theme_minimal() +
+    theme(
+      panel.grid.major = element_line(color = "gray90"),
+      panel.grid.minor = element_blank(),
+      legend.position = "bottom"
+    ) +
+    facet_wrap(~ prior, ncol = 1, labeller = labeller(prior = function(x) paste0("Prior p = ", x)))
+  
+  return(plot)
+}
+
+plot_combined_accuracy_by_trial <- function(trial_df, config) {
+  # Plot all three accuracy measures side by side for each prior probability
+  # with dynamic grid that adjusts to trial count
+  #
+  # Args:
+  #   trial_df: DataFrame with trial-by-trial data
+  #   config: Simulation configuration parameters
+  #
+  # Returns:
+  #   List of ggplot objects
+  
+  # Calculate mean values for each measure by prior, trial, and AI type
+  ex_ante_grouped <- trial_df %>%
+    group_by(prior, trial, ai_type) %>%
+    summarize(mean_accuracy = mean(ev_accuracy), .groups = "drop") %>%
+    mutate(measure = "Ex-Ante\nStatistical Optimality")
+  
+  ex_post_type_grouped <- trial_df %>%
+    group_by(prior, trial, ai_type) %>%
+    summarize(mean_accuracy = mean(rec_accuracy), .groups = "drop") %>%
+    mutate(measure = "Ex-Post Type\nCorrect Predictions")
+  
+  ex_post_payoff_grouped <- trial_df %>%
+    group_by(prior, trial, ai_type) %>%
+    summarize(mean_accuracy = mean(outcome_accuracy), .groups = "drop") %>%
+    mutate(measure = "Ex-Post Payoff\nPayoff-Based Accuracy")
+  
+  # Combine all data
+  all_data <- bind_rows(ex_ante_grouped, ex_post_type_grouped, ex_post_payoff_grouped)
+  
+  # Determine the max number of trials
+  max_trials <- max(trial_df$trial)
+  
+  # Create dynamic x-ticks
+  x_ticks <- create_dynamic_x_ticks(max_trials)
+  
+  all_data$ai_type <- factor(all_data$ai_type, levels = config$ai_types)
+  
+  # Define measure order
+  ordered_measures <- c("Ex-Ante\nStatistical Optimality", 
+                     "Ex-Post Type\nCorrect Predictions", 
+                     "Ex-Post Payoff\nPayoff-Based Accuracy")
+
+  # Convert measure to a factor with the right order
+  all_data$measure <- factor(all_data$measure, levels = ordered_measures)
+  
+  # Create plot with facets
+  plot <- ggplot(all_data, aes(x = trial, y = mean_accuracy, color = ai_type, group = ai_type)) +
+    geom_line(linewidth = 0.5) +
+    geom_point(size = 1) +
+    scale_color_brewer(palette = "Set1", 
+                       labels = str_to_title(unique(trial_df$ai_type))) +
+    scale_x_continuous(breaks = x_ticks) +
+    scale_y_continuous(limits = c(0, 1.05)) +
+    labs(
+      x = "Trial Number",
+      y = "Accuracy",
+      color = "AI Type"
+    ) +
+    theme_minimal() +
+    theme(
+      panel.grid.major = element_line(color = "gray90"),
+      panel.grid.minor = element_blank(),
+      legend.position = "bottom",
+      strip.text = element_text(size = 10, face = "bold")
+    ) +
+    facet_grid(prior ~ measure, 
+               labeller = labeller(prior = function(x) paste0("Prior p = ", x)))
+  
+  return(plot)
+}
+
+# Plot trial performance
+plot_trial_by_trial_performance <- function(trial_df, config) {
+  # Plot performance across trials for all AI types
+  #
+  # Args:
+  #   trial_df: DataFrame with trial-by-trial data
+  #   config: Simulation configuration parameters
+  #
+  # Returns:
+  #   List of ggplot objects, one for each prior
+  
+  # Group by prior, trial, and AI type to get average performance
+  grouped <- trial_df %>%
+    group_by(prior, trial, ai_type) %>%
+    summarize(rec_accuracy = mean(rec_accuracy), .groups = "drop")
+  
+  # Determine max trials 
+  max_trials <- max(trial_df$trial)
+  x_ticks <- create_dynamic_x_ticks(max_trials)
+  
+  # Create plots for each prior
+  plots <- list()
+  for (p in unique(grouped$prior)) {
+    data <- grouped %>% filter(prior == p)
+    
+    data$ai_type <- factor(data$ai_type, levels = config$ai_types)
+    
+    plot <- ggplot(data, aes(x = trial, y = rec_accuracy, color = ai_type, group = ai_type)) +
+      geom_line(linewidth = 1) +
+      geom_point(size = 2.5) +
+      scale_color_brewer(palette = "Set1") +
+      scale_x_continuous(breaks = x_ticks) +
+      scale_y_continuous(limits = c(0, 1.05)) +
+      labs(
+        title = paste("AI Correct Predictions Across Trials (Prior p =", p, ")"),
+        x = "Trial Number",
+        y = "Correct Prediction Rate",
+        color = "AI Type"
+      ) +
+      theme_minimal() +
+      theme(
+        panel.grid.major = element_line(color = "gray90"),
+        panel.grid.minor = element_blank(),
+        legend.position = "bottom"
+      )
+    
+    plots[[as.character(p)]] <- plot
+  }
+  
+  return(plots)
+}
+
+# create_table_from_results function
+create_table_from_results <- function(results, ev_results, config, table_type = "summary") {
+  # Create a dataframe to display the data in a tabular format
+  #
+  # Args:
+  #   results: List with traditional accuracy results
+  #   ev_results: List with EV-based accuracy results
+  #   config: Simulation configuration parameters
+  #   table_type: "summary" or "prior" to indicate the type of table to generate
+  #
+  # Returns:
+  #   A data frame containing the table data
+  
+  if (table_type == "summary") {
+    # Overall performance summary table
+    trad_accuracy <- list()
+    ev_accuracy <- list()
+    payoff_accuracy <- list()
+    
+    for (ai_type in config$ai_types) {
+      # Calculate overall accuracy across priors
+      correct <- sum(sapply(config$p, function(p) results[[as.character(p)]][[ai_type]]$correct))
+      total <- sum(sapply(config$p, function(p) results[[as.character(p)]][[ai_type]]$total))
+      trad_accuracy[[ai_type]] <- correct / total
+      
+      ev_correct <- sum(sapply(config$p, function(p) ev_results[[as.character(p)]][[ai_type]]$ev_correct))
+      ev_total <- sum(sapply(config$p, function(p) ev_results[[as.character(p)]][[ai_type]]$total))
+      ev_accuracy[[ai_type]] <- ev_correct / ev_total
+      
+      payoff_correct <- sum(sapply(config$p, function(p) results[[as.character(p)]][[ai_type]]$outcome_correct))
+      payoff_total <- sum(sapply(config$p, function(p) results[[as.character(p)]][[ai_type]]$total))
+      payoff_accuracy[[ai_type]] <- payoff_correct / payoff_total
+    }
+    
+    summary_data <- data.frame()
+    for (ai_type in config$ai_types) {
+      new_row <- data.frame(
+        AI_Type = str_to_title(ai_type),
+        Ex_Ante_Statistical_Optimality = ev_accuracy[[ai_type]],
+        Ex_Post_Type_Correct_Predictions = trad_accuracy[[ai_type]],
+        Ex_Post_Payoff_Accuracy = payoff_accuracy[[ai_type]]
+      )
+      summary_data <- rbind(summary_data, new_row)
+    }
+    
+    return(summary_data)
+    
+  } else if (table_type == "prior") {
+    # Performance by prior probability table
+    data <- data.frame()
+    for (p in config$p) {
+      for (ai_type in config$ai_types) {
+        trad_acc <- results[[as.character(p)]][[ai_type]]$correct / results[[as.character(p)]][[ai_type]]$total
+        ev_acc <- ev_results[[as.character(p)]][[ai_type]]$ev_correct / ev_results[[as.character(p)]][[ai_type]]$total
+        payoff_acc <- results[[as.character(p)]][[ai_type]]$outcome_correct / results[[as.character(p)]][[ai_type]]$total
+        
+        new_row <- data.frame(
+          Prior_Probability = p,
+          AI_Type = str_to_title(ai_type),
+          Ex_Ante_Statistical_Optimality = ev_acc,
+          Ex_Post_Type_Correct_Predictions = trad_acc,
+          Ex_Post_Payoff_Accuracy = payoff_acc
+        )
+        data <- rbind(data, new_row)
+      }
+    }
+    
+    return(data)
+  } else {
+    return(NULL)
+  }
+}
+
+
+# Display results table function
+display_results_table <- function(results, config) {
+  cat(sprintf("Number of trials num_trials=%d\n\n", config$num_trials))
+
+  for (p in config$p) {
+    cat(sprintf("===== p = %s =====\n", p))
+    for (ai_type in config$ai_types) {
+      # Access metrics directly from results
+      ex_ante <- results[[as.character(p)]][[ai_type]]$ex_ante
+      ex_post_type <- results[[as.character(p)]][[ai_type]]$ex_post_type
+      ex_post_payoff <- results[[as.character(p)]][[ai_type]]$ex_post_payoff
+
+      cat(sprintf("  %-15s => ex-ante=%.4f, ex-post-type=%.4f, ex-post-payoff=%.4f\n", 
+                 ai_type, ex_ante, ex_post_type, ex_post_payoff))
+    }
+    cat("\n")
+  }
+}
+
+# Display forced choice results function
+display_forced_choice_results <- function(forced_results, config) {
+  cat("\n===== FORCED CHOICE ACCURACY (EXCLUDING EV TIES) =====\n")
+  
+  for (p in config$p) {
+    cat(sprintf("Prior p = %s\n", p))
+    for (ai_type in config$ai_types) {
+      ex_ante <- forced_results[[as.character(p)]][[ai_type]]$ex_ante
+      ex_post_type <- forced_results[[as.character(p)]][[ai_type]]$ex_post_type
+      ex_post_payoff <- forced_results[[as.character(p)]][[ai_type]]$ex_post_payoff
+      pct_included <- forced_results[[as.character(p)]][[ai_type]]$pct_included
+      
+      if (is.nan(ex_ante)) {
+        cat(sprintf("  %-15s => N/A (no non-tie cases)\n", ai_type))
+      } else {
+        cat(sprintf("  %-15s => ex-ante=%.4f, ex-post-type=%.4f, ex-post-payoff=%.4f (using %.1f%% of trials)\n", 
+                   ai_type, ex_ante, ex_post_type, ex_post_payoff, pct_included))
+      }
+    }
+    cat("\n")
+  }
+}
+        
+```
+
+
+
+### Diagnostic and Testing Functions
+
+This section includes functions for testing and validating the AI recommendations:
+
+- **`test_ai_recommendations`:** Runs controlled scenarios to verify that the AI models are making expected recommendations in specific cases. This helps ensure the correctness of the simulation logic.
+
+```{r diagnostic-functions}
+# Diagnostic and Testing Functions
+test_ai_recommendations <- function(config) {
+  # Function to test AI recommendations in controlled scenarios
+  #
+  # Args:
+  #   config: Simulation configuration parameters
+  
+  cat("Testing AI recommendations in controlled scenarios...\n")
+  
+  # Test case 1: Good share, perfect knowledge
+  cat("\nCase 1: Good share with perfect knowledge\n")
+  true_share_type <- "good"
+  correct_decision <- get_correct_decision(true_share_type, config)
+  ai_rec <- get_ai_recommendation("perfect", 0.5, c("high", "high", "high"), 3, config)
+  cat(sprintf("True share type: %s\n", true_share_type))
+  cat(sprintf("Correct decision: %s\n", correct_decision))
+  cat(sprintf("Perfect AI recommendation: %s\n", ai_rec))
+  cat(sprintf("Match: %s\n", ai_rec == correct_decision))
+  
+  # Test case 2: Bad share, perfect knowledge
+  cat("\nCase 2: Bad share with perfect knowledge\n")
+  true_share_type <- "bad"
+  correct_decision <- get_correct_decision(true_share_type, config)
+  ai_rec <- get_ai_recommendation("perfect", 0.5, c("low", "low", "low"), 3, config)
+  cat(sprintf("True share type: %s\n", true_share_type))
+  cat(sprintf("Correct decision: %s\n", correct_decision))
+  cat(sprintf("Perfect AI recommendation: %s\n", ai_rec))
+  cat(sprintf("Match: %s\n", ai_rec == correct_decision))
+  
+  # Test Naive Prior AI progression
+  cat("\nTesting Naive Prior AI progression over trials...\n")
+  outcomes <- c("high", "high", "low", "high", "high", "low", "high", "high")
+  for (trial in 1:length(outcomes)) {
+    current_outcomes <- if (trial > 1) outcomes[1:(trial-1)] else character(0)
+    nH <- sum(current_outcomes == "high")
+    nL <- sum(current_outcomes == "low")
+    posterior <- calculate_posterior("naive_prior", 0.5, current_outcomes, trial-1, config)
+    expected_return <- calculate_expected_return(posterior, config)
+    recommendation <- get_ai_recommendation("naive_prior", 0.5, current_outcomes, trial-1, config)
+    cat(sprintf("Trial %d: High=%d, Low=%d, Posterior=%.4f, E[Return]=%.4f, Recommendation=%s\n", 
+               trial, nH, nL, posterior, expected_return, recommendation))
+  }
+}
+```
+
+### Main Execution Function
+
+This section orchestrates the analysis process:
+
+- It sets the number of simulations to run.
+- It runs the normal simulations and the EV-based simulations.
+- It performs detailed trial-by-trial analysis if enabled.
+- It returns all results in a dictionary.
+
+```{r main-function}
+# Main function
+# Core execution functions without display logic
+run_simulation_core <- function(config, num_simulations = NULL) {
+  # Just runs the simulation and returns results
+  if (is.null(num_simulations)) {
+    num_simulations <- config$num_simulations
+  }
+  
+  # Run simulations
+  cat(sprintf("\nRunning simulations (%d iterations per prior)...\n", num_simulations))
+  sim_results <- run_all_simulations(config, num_simulations)
+  
+  return(sim_results)
+}
+
+run_analytical_core <- function(config) {
+  # Just runs analytical solution and returns results
+  cat("\nCalculating analytical solution...\n")
+  cat(sprintf("This will enumerate 2^%d = %d possible sequences\n", 
+             config$num_trials, 2^config$num_trials))
+  
+  analytical_res <- run_all_measures(config)
+  
+  return(analytical_res)
+}
+```
+
+```{r simulation-setup}
+# Setup and configuration
+config <- DEFAULT_CONFIG
+# You could modify config parameters here if needed
+# config$num_trials <- 8  # Example modification
+```
+
+```{r simulation-test}
+# Test the AI recommendations to validate core logic
+test_ai_recommendations(config)
+```
+
+```{r simulation-analysis}
+# Run the simulation analysis
+sim_results <- run_simulation_core(config)
+standard_results <- sim_results$standard
+forced_results <- sim_results$forced
+trial_df <- sim_results$trial_df
+
+# Save results if desired
+saveRDS(sim_results, "simulation_results.rds")
+
+```
+
+```{r simulation-performance-table}
+# Display simulation summary statistics
+cat("========== SIMULATION RESULTS ==========\n")
+display_results_table(standard_results, config)
+
+```
+
+```{r simulation-performance-plot}
+# Performance by prior probability
+cat("STANDARD PERFORMANCE BY PRIOR PROBABILITY\n")
+plot_performance_by_prior(standard_results, config, "simulation")
+
+```
+
+
+```{r trial-performance}
+# Performance across trials
+cat("ACCURACY ACROSS TRIALS\n")
+plot_combined_accuracy_by_trial(trial_df, config)
+
+```
+
+
+```{r forced-choice-results}
+# Forced choice results (excluding EV ties)
+cat("========== FORCED CHOICE RESULTS ==========\n")
+display_forced_choice_results(forced_results, config)
+
+# Forced choice visualization
+plot_performance_by_prior(forced_results, config, "forced")
+```
+
+```{r analytical-solution}
+# Run the analytical solution
+analytical_res <- run_analytical_core(config)
+analytical_results <- analytical_res$standard_results
+analytical_forced_results <- analytical_res$forced_results
+
+# Save results if desired
+saveRDS(analytical_res, "analytical_results.rds")
+
+```
+
+
+```{r analytical-results}
+# Display analytical results
+cat("========== ANALYTICAL RESULTS ==========\n")
+display_results_table(analytical_results, config)
+
+# Analytical performance visualization
+plot_performance_by_prior(analytical_results, config, "analytical")
+```
+
+
+```{r analytical-forced-choice-results}
+# Analytical forced choice results
+cat("========== ANALYTICAL FORCED CHOICE RESULTS ==========\n")
+display_forced_choice_results(analytical_forced_results, config)
+
+# Analytical forced choice visualization
+plot_performance_by_prior(analytical_forced_results, config, "analytical_forced")
+
+```
+
